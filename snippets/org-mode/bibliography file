@@ -1,0 +1,6 @@
+# key: bib
+# name: bibliography file
+# --
+* References :ignore:
+bibliographystyle:unsrt
+bibliography:`my-bib`

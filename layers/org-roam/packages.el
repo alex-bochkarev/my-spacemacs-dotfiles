@@ -31,7 +31,9 @@
 
 (defconst org-roam-packages
   '((org-roam :location
-              (recipe :fetcher github :repo "jethrokuan/org-roam" :branch "develop"))))
+              (recipe :fetcher github :repo "org-roam/org-roam" :branch "master"))
+    (org-roam-bibtex)
+    ))
 
 (defun org-roam/init-org-roam ()
   (use-package org-roam
@@ -55,7 +57,34 @@
         "rb" 'org-roam-switch-to-buffer
         "rf" 'org-roam-find-file
         "ri" 'org-roam-insert
-        "rg" 'org-roam-show-graph))))
+        "rg" 'org-roam-show-graph)
+      (setq org-roam-link-title-format "🕮:%s")
+      (require 'org-roam-protocol)
+      ;; end of config
+      )
+    ))
+
+(defun org-roam/init-org-roam-bibtex ()
+  ;; org-roam-bibtex setup
+  (use-package org-roam-bibtex
+    :load-path "~/.spacemacs.d/distribs/org-roam-bibtex" ;Modify with your own path
+    :hook (org-roam-mode . org-roam-bibtex-mode)
+    :bind (:map org-mode-map
+                (("H-b" . orb-note-actions)))
+    :config
+    (setq orb-preformat-keywords
+          '("citekey" "title" "author" "keywords"))
+    (setq orb-templates
+          '(("r" "ref" plain (function org-roam-capture--get-point) ""
+             :file-name "${citekey}"
+             :head "#+TITLE: ${citekey}: ${title}
+#+ROAM_KEY: ${citekey}
+#+PROPERTY: authors ${author}
+#+TAGS: ${keywords}\n\n"
+             :unnarrowed t)))
+    )
+  )
+
 ;;   '()
 ;;   "The list of Lisp packages required by the org-roam layer.
 

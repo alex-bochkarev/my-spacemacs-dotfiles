@@ -1,0 +1,10 @@
+#+TITLE: Personal Spacemacs config
+#+AUTHOR: A. Bochkarev
+
+*Key things:*
+- customized orgmode
+- org-roam, org-roam-protocol, org-roam-bibtex
+- org-special-block-extras
+- little dired tweaks
+- org-pomodoro
+- some personal snippets (yas)

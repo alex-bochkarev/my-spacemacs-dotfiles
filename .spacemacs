@@ -70,13 +70,15 @@ values."
      bibtex
      pdf
      finance ;; ledger layer
-     vinegar
      csv
      evil-commentary
      themes-megapack
      deft
+     unicode-fonts
      ;; journal -- since moved to the org layer in the develop branch
      org-roam
+     (vinegar :variables
+                vinegar-reuse-dired-buffer t)
      )
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
@@ -84,6 +86,9 @@ values."
    ;; configuration in `dotspacemacs/user-config'.
    dotspacemacs-additional-packages '(
                                       doom-themes
+                                      org-roam-bibtex
+                                      org-special-block-extras
+                                      all-the-icons-dired
 ;;                                      ob-ipython
                                       )
    ;; A list of packages that cannot be updated.
@@ -163,7 +168,7 @@ values."
    dotspacemacs-colorize-cursor-according-to-state t
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
-   dotspacemacs-default-font '("Iosevka"
+   dotspacemacs-default-font '("Iosevka Term"
                                :size 15
                                :weight normal
                                :width normal
@@ -349,7 +354,7 @@ you should place your code here."
     (require 'ox-extra) ;; :ignore: feature
     (ox-extras-activate '(ignore-headlines))
     ;; set ellipsis
-    (setq org-ellipsis "▼") ;; might want to consider: ▼, ⤵, ↴, ⬎, ⤷, ⋱
+    (setq org-ellipsis "↴") ;; might want to consider: ▼, ⤵, ↴, ⬎, ⤷, ⋱
 
     (setq org-journal-carryover-items "+carryover|+TODO=\"TODO\"")
 
@@ -888,6 +893,7 @@ as the default task."
   (define-key org-mode-map (kbd "s-<return>") 'org-insert-item)
   (define-key org-mode-map (kbd "C-s-<return>") 'org-insert-todo-heading)
   (global-set-key (kbd "H-i") 'org-clock-in)
+  (global-set-key (kbd "H-p") 'org-pomodoro)
   (global-set-key (kbd "H-o") 'org-clock-out)
 
   (global-set-key (kbd "<H-f12>") 'org-projectile/goto-todos)
@@ -948,10 +954,16 @@ as the default task."
           'font-lock-face 'calendar-iso-week-face))
   ;;; end of calendar customization
   (setq my-email "abochka@clemson.edu")
-
+  (setq my-bib "~/Dropbox/bibliography/references.bib")
   ;; yasnippet directory
   (setq yas-snippet-dirs (append yas-snippet-dirs
                                  '("~/.spacemacs.d/snippets"))) ;; append with a personal snippets collection
+
+  (use-package org-special-block-extras
+    :ensure t
+    :hook (org-mode . org-special-block-extras-mode))
+
+  (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
   ;; ab/config end
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   )
