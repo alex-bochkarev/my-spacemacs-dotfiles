@@ -1,0 +1,4 @@
+# key: lnc
+# name: latex-new-command
+# --
+#+LATEX_HEADER: \newcommand{$1}[$2]{$0}

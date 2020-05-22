@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: org-bibliography
+# key: bib
+# --
+bibliographystyle:unsrt
+bibliography:./bibs.bib
+$0

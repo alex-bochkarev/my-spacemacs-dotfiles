@@ -1,0 +1,10 @@
+# key: head
+# name: header-comm
+# --
+"""
+$0
+
+---
+(c) A. Bochkarev, Clemson University, `(format-time-string "%Y")`
+`my-email`
+"""

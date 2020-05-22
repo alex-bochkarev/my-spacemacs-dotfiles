@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: ipython-block
+# key: <py
+# --
+#+BEGIN_SRC ipython :session mys :results raw drawer :tangle $1
+$0
+#+END_SRC
