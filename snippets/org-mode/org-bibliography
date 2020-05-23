@@ -2,6 +2,7 @@
 # name: org-bibliography
 # key: bib
 # --
+* References :ignore:
 bibliographystyle:unsrt
-bibliography:./bibs.bib
+bibliography:`my-bib`
 $0
