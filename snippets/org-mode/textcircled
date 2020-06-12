@@ -1,0 +1,4 @@
+# key: cir
+# name: textcircled
+# --
+\textcircled{$1}$0

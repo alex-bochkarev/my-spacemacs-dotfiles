@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: margin figure
+# key: mfig
+# --
+#+begin_export latex
+\begin{marginfigure}
+  \includegraphics{images/$1}
+  \caption{$0}\label{fig:$2}
+\end{marginfigure}
+#+end_export

@@ -579,11 +579,6 @@ as the default task."
                           (org-agenda-overriding-header "== NEXT STEPS POOL: ============================================")
                           (org-agenda-sorting-strategy '(priority-down))
                           ))
-              (tags-todo "-PERSONAL-REFILE-someday/TODO"
-                         ((org-agenda-prefix-format " %i %?-25(concat (org-format-outline-path (list (nth 0 (org-get-outline-path))))) : ")
-                          (org-agenda-overriding-header "== OTHER TODOs : ===============================================")
-                          (org-agenda-sorting-strategy '(priority-down))
-                          ))
               (tags-todo "+PERSONAL-REFILE"
                          ((org-agenda-prefix-format " %i %?-25(concat (org-format-outline-path (list (nth 0 (org-get-outline-path))))) : ")
                           (org-agenda-overriding-header "== PERSONAL TODOs: ==========================================")
@@ -593,6 +588,11 @@ as the default task."
                     ((org-agenda-prefix-format " %i %?-25(concat (org-format-outline-path (list (nth 0 (org-get-outline-path))))) : ")
                      (org-agenda-overriding-header "== TODO's to REFILE: ========================================")
                      (org-agenda-sorting-strategy '(todo-state-down priority-down effort-up))))
+              (tags-todo "-PERSONAL-REFILE-someday/TODO"
+                         ((org-agenda-prefix-format " %i %?-25(concat (org-format-outline-path (list (nth 0 (org-get-outline-path))))) : ")
+                          (org-agenda-overriding-header "== OTHER TODOs : ===============================================")
+                          (org-agenda-sorting-strategy '(priority-down))
+                          ))
               (tags "-REFILE+someday"
                     ((org-agenda-prefix-format " %i %?-25(concat (org-format-outline-path (list (nth 0 (org-get-outline-path))))) : ")
                      (org-agenda-overriding-header "== SOMEDAY items: ==========================================")))
@@ -964,6 +964,26 @@ as the default task."
     :hook (org-mode . org-special-block-extras-mode))
 
   (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
+
+
+  ;; encryption config, from https://github.com/nickanderson/Level-up-your-notes-with-Org/blob/master/dot-spacemacs
+  ;; http://yenliangl.blogspot.com/2009/12/encrypt-your-important-data-in-emacs.html
+  ;; http://emacs-fu.blogspot.com/2011/02/keeping-your-secrets-secret.html
+  ;; This allows me to encrypt subtrees that are tagged with crypt automatically.
+  ;; by default I want to encrypt it to myself. but with properties entries I cna encrypt to other people. which is useful in a shared file situation
+  (require 'org-crypt)
+
+  ;; Automatically re-encrypt entries on save to avoid leaking decrypted
+  ;; information.
+  (org-crypt-use-before-save-magic)
+  (setq org-crypt-disable-auto-save (quote encrypt))
+
+  ;; GPG key to use for encryption
+  ;; Either the Key ID or set to nil to use symmetric encryption.
+  (setq org-crypt-key "623059B30431300C1268C89A95BC4F563F9F14E6")
+
+  ;; This prevents the crypt tag from being included in inheritance.
+  (setq org-tags-exclude-from-inheritance (quote ("crypt")))
   ;; ab/config end
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   )

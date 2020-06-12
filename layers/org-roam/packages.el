@@ -58,7 +58,7 @@
         "rf" 'org-roam-find-file
         "ri" 'org-roam-insert
         "rg" 'org-roam-show-graph)
-      (setq org-roam-link-title-format "🕮:%s")
+      (setq org-roam-link-title-format "🕮:%s") ;; maybe? 🕮 § (doesn't look good in bold?)
       (require 'org-roam-protocol)
       ;; end of config
       )

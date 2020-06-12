@@ -8,3 +8,4 @@
 - little dired tweaks
 - org-pomodoro
 - some personal snippets (yas)
+- org-crypt for files encryption
