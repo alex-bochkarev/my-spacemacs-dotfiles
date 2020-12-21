@@ -1,0 +1,18 @@
+* Infospace :elfeed:
+** OR journals :OR:press:
+*** [[http://pubsonline.informs.org/action/showFeed?type=etoc&feed=rss&jc=moor][MOOR -- Mathematics of OR]]
+*** [[http://pubsonline.informs.org/action/showFeed?type=etoc&feed=rss&jc=ijoc][IJOC -- Journal on Computing]]
+*** [[https://pubsonline.informs.org/action/showFeed?type=etoc&feed=rss&jc=ijoo][IJOO -- Journal on Optimization]]
+*** [[http://pubsonline.informs.org/action/showFeed?type=etoc&feed=rss&jc=inte][INTE -- on Applied Analytics]]
+*** [[http://pubsonline.informs.org/action/showFeed?type=etoc&feed=rss&jc=opre][OPRE -- Operations Research]]
+*** [[http://rss.sciencedirect.com/publication/science/03772217][EJOR]]
+*** [[http://rss.sciencedirect.com/publication/science/15725286][Discrete Optimization]]
+** OR blogs :OR:blog:
+*** [[https://punkrockor.com/feed/][PunkRockOR]]
+*** [[http://11011110.livejournal.com/data/rss][Marco Luebbecke]]
+*** [[http://www.informs.org/rss/feed/iol_blog][INFORMS blog]]
+*** [[http://www.palgrave-journals.com/jors/journal/vaop/ncurrent/rss.rdf][JORS]]
+*** [[http://www.informs.org/rss/feed/orforum][OR forum]]
+*** [[http://probonoor.blogspot.com/feeds/posts/default][ProBono OR]]
+** Non-OR blogs :blog:general:
+*** [[https://two-wrongs.com/feed.xml][TwoWrongs]]

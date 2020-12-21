@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: src-py
+# key: <sp
+# --
+#+BEGIN_SRC python :noweb yes
+  $0
+#+END_SRC

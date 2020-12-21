@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: flalign+split
+# key: fls
+# --
+\begin{flalign}\label{eq:$1}
+\begin{split}
+$0 \nonumber
+\end{split}
+\end{flalign}

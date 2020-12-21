@@ -1,0 +1,6 @@
+* Current project TODOs
+** TODO Avoid duplicates in agenda
+ [2020-08-03 Mon 16:18]
+ [[file:~/.spacemacs.d/.spacemacs::(push file org-agenda-files)))]]
+ 
+Need to check if =file= is in =org-agenda-files= already (and add only if not)

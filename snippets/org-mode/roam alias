@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: roam alias
+# key: ral
+# --
+#+ROAM_ALIAS: $0

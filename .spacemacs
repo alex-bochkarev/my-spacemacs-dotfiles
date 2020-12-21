@@ -30,7 +30,8 @@ values."
    dotspacemacs-configuration-layer-path '("~/.spacemacs.d/layers/")
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(
+   '(javascript
+     rust
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
@@ -43,9 +44,11 @@ values."
      git
      markdown
      (org :variables
+          org-enable-roam-support t
           org-enable-org-journal-support t
           org-enable-github-support t
-          org-projectile-file "TODOs.org")
+          org-projectile-file "TODOs.org"
+          org-enable-hugo-support t)
      ;; (shell :variables
      ;;        shell-default-height 30
      ;;        shell-default-position 'bottom)
@@ -76,9 +79,12 @@ values."
      deft
      unicode-fonts
      ;; journal -- since moved to the org layer in the develop branch
-     org-roam
      (vinegar :variables
-                vinegar-reuse-dired-buffer t)
+              vinegar-reuse-dired-buffer t)
+     ;; elfeed setup
+     (elfeed :variables rmh-elfeed-org-files (list "~/.spacemacs.d/elfeed.org"))
+     ;; fun
+     xkcd
      )
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
@@ -89,7 +95,11 @@ values."
                                       org-roam-bibtex
                                       org-special-block-extras
                                       all-the-icons-dired
+                                      org-re-reveal-ref
 ;;                                      ob-ipython
+                                      parchment-theme
+                                      sunny-day-theme
+                                      poet-theme
                                       )
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -158,11 +168,12 @@ values."
    ;; True if the home buffer should respond to resize events.
    dotspacemacs-startup-buffer-responsive t
    ;; Default major mode of the scratch buffer (default `text-mode')
-   dotspacemacs-scratch-mode 'text-mode
+   dotspacemacs-scratch-mode 'emacs-lisp-mode
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press <SPC> T n to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(doom-nord
+   dotspacemacs-themes '(professional
+                         doom-nord
                          doom-nord-light)
    ;; If non nil the cursor color matches the state color in GUI Emacs.
    dotspacemacs-colorize-cursor-according-to-state t
@@ -373,6 +384,9 @@ you should place your code here."
     (setq org-workflow-file "~/orgmode/master.org")
     (setq org-sys-log "~/pkb/SysRebuild.org")
 
+    ;; some Zettelkasten targets
+    (setq org-zk-readme-file "~/zettelkasten/20200401114428_readme.org")
+
     (setq org-clock-history-length 24)
 
     (setq org-refile-targets
@@ -441,12 +455,19 @@ you should place your code here."
                   ("b" "Note: [b]uy something / shopping list" entry(file+headline org-workflow-file "Shopping list")
                    "* %?")
 
+                  ;;;;; readme-notes for org-protocol
+
+                  ("m" "========== Book[m]arks / readme notes====================")
+                  ("mr" "Research-related entry" entry (file+headline org-zk-readme-file "Research-related notes")
+                   "* %a\n Captured: %U\n %?\n")
+                  ("mg" "General note (link)" entry (file+headline org-zk-readme-file "General notes")
+                   "* %a\n Captured: %U\n %?\n")
+
                   ;;;;; Questions ;;;;;
-                  ("Q" "========== Questions tbd later ===============")
-                  ("Qp" "Advanced [p]robability (Dr. Burak)" entry (file+olp org-workflow-file "Study" "IE 8880 Prob" "Questions tbd") "**** %?")
-                  ("Qo" "Advanced [o]R (Dr. Khademi)" entry (file+olp org-workflow-file "Study" "IE 8800 OR" "Questions tbd") "**** %?")
-                  ("Qa" "[a]lgoritms (Dr. Dean)" entry (file+olp org-workflow-file "Study" "Algorithms" "Questions tbd") "**** %?")
-                  ("Qr" "[r]esearch-related (Dr. Smith)" entry (file+olp org-workflow-file "Research" "Questions tbd") "**** %?")
+                  ("Q" "========== Questions tbd later / feedback ===============")
+                  ("Qs" "[S]tochastic opt (Dr. Song)" entry (file+olp org-workflow-file "Study" "IE 8930 Song" "Questions tbd") "**** %? \n")
+                  ("Qh" "[H]f (Dr. Neyens)" entry (file+olp org-workflow-file "Study" "IE 8000 HF" "Questions tbd") "**** %? \n")
+                  ("Qr" "[r]esearch-related (Dr. Smith)" entry (file+olp org-workflow-file "Research" "Questions tbd") "**** %? \n")
 
                   ("l" "========== Course log entries ================")
                   ("lp" "Advanced [p]robability (Dr. Burak)" entry (file+olp org-workflow-file "Study" "IE 8880 Prob" "Course log") "**** %U %?")
@@ -464,8 +485,8 @@ you should place your code here."
     (use-package org-protocol
       :after org)
 
-    (require 'org-protocol)
-
+    (use-package org-re-reveal :after org)
+    (use-package org-re-reveal-ref :after org)
     ;; set-up agenda
     (setq org-agenda-files (list "~/orgmode"))
 
@@ -695,6 +716,8 @@ as the default task."
      '((ditaa . t)
        (dot . t)
        (python . t)
+       (shell . t)
+       (R . t)
        ;; (ipython . t)
        )) ; this line activates ditaa
 
@@ -718,6 +741,27 @@ as the default task."
 ;; ;;; display/update images in the buffer after I evaluate
 ;;   (add-hook ‘org-babel-after-execute-hook ‘org-display-inline-images ‘append)
 
+
+    ;; orgmode specific: use minted for syntax highlighting
+    ;; Use minted
+    (add-to-list 'org-latex-packages-alist '("" "minted"))
+    (setq org-latex-listings 'minted)
+
+    ;; Add the shell-escape flag
+    (setq org-latex-pdf-process '(
+                                  "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+                                  ;; "bibtex %b"
+                                  "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+                                  "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+                                  ))
+
+    ;; Sample minted options.
+    (setq org-latex-minted-options '(
+                                     ("frame" "lines")
+                                     ("fontsize" "\\scriptsize")
+                                     ("xleftmargin" "\\parindent")
+                                     ("linenos" "")
+                                     ))
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
   ;; =================================== CUSTOM BIBTEX SETUP (ORG-REF) ===========================================
@@ -756,13 +800,15 @@ as the default task."
   (setq reftex-default-bibliography '"~/Dropbox/bibliography/references.bib")
 
   ;; see org-ref for use of these variables
+  (setq org-ref-default-bibliography '"~/Dropbox/bibliography/references.bib")
+
   (setq org-ref-bibliography-notes '"~/Dropbox/bibliography/notes.org"
         org-ref-default-bibliography '"~/Dropbox/bibliography/references.bib"
         org-ref-pdf-directory '"~/Dropbox/bibliography/bibtex-pdfs/")
 
   (setq bibtex-completion-bibliography '"~/Dropbox/bibliography/references.bib"
-        bibtex-completion-library-path '"~/Dropbox/bibliography/bibtex-pdfs"
-        bibtex-completion-notes-path '"~/Dropbox/bibliography/helm-bibtex-notes"
+        ;; bibtex-completion-library-path '"~/Dropbox/bibliography/bibtex-pdfs"
+        ;; bibtex-completion-notes-path '"~/Dropbox/bibliography/helm-bibtex-notes"
         bibtex-completion-pdf-field '"file")
 
   ;; open pdf with system pdf viewer (works with okular)
@@ -782,9 +828,9 @@ as the default task."
            (pdf-file (car (bibtex-completion-find-pdf key))))
       (message "pdf file is %s" pdf-file)
       (if (file-exists-p pdf-file)
-          ;;(org-open-file pdf-file)
-          (let ((process-connection-type nil))
-            (start-process "" nil "xdg-open" pdf-file))
+          (org-open-file pdf-file)
+          ;; (let ((process-connection-type nil))
+          ;;   (start-process "" nil "xdg-open" pdf-file))
           ;;(bibtex-completion-pdf-open-function pdf-file)
         (message "No PDF found for %s" key))))
 
@@ -792,7 +838,6 @@ as the default task."
 
   ;; correct export of references
   (setq org-latex-prefer-user-labels t)
-
 
   ;; set up export to latex
 
@@ -816,7 +861,7 @@ as the default task."
 
   (add-to-list 'org-modules 'org-protocol)
   (require 'org-protocol)
-
+  (require 'org-roam-protocol)
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; gnome-panel clocked-in task
   (add-hook
@@ -847,24 +892,51 @@ as the default task."
    )
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; org-roam setup
+
+  (setq org-roam-directory "~/zettelkasten/")
+  (setq org-roam-link-title-format "🕮:%s") ;; maybe? 🕮 § (doesn't look good in bold?)
+
+  ;; org-roam-bibtex
+;;   (setq orb-preformat-keywords
+;;         '("citekey" "title" "author" "keywords"))
+
+  (setq orb-templates
+        '(("r" "ref" plain (function org-roam-capture--get-point) ""
+           :file-name "refs/${citekey}"
+           :head "#+TITLE: ${citekey}: ${title}\n#+ROAM_KEY: ${ref}\n#+TAGS: ${keywords}\n\n"
+           :unnarrowed t
+           :immediate-finish t)))
+
+  (defun ab-full-orf ()
+    (interactive)
+    (let ((helm-full-frame t))
+      (org-roam-find-file)))
+
+  ;; while we are at it: make help pop up a new frame always
+  ;; (setq helm-display-function 'helm-display-buffer-in-own-frame
+  ;;       helm-display-buffer-reuse-frame t
+  ;;       helm-use-undecorated-frame-option t)
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; define some custom (global) keybindings
   (global-set-key (kbd "H-c") 'org-capture)
+  (global-set-key (kbd "H-q") 'org-fill-paragraph)
   (global-set-key (kbd "H-/") 'org-roam-find-file)
   (global-set-key (kbd "H-a") 'org-agenda)
   (global-set-key (kbd "H-t") 'org-projectile/goto-todos)
-  (global-set-key (kbd "H-m") (lambda () (interactive) (find-file "~/orgmode/master.org")))
+  (global-set-key (kbd "H-1") (lambda () (interactive) (find-file "~/orgmode/master.org")))
+  (global-set-key (kbd "H-m") 'spacemacs/toggle-maximize-buffer)
 
   (global-set-key (kbd "H-s") 'org-save-all-org-buffers)
 
   ;; moving around
-  (global-set-key (kbd "H-<left>") 'evil-window-left)
-  (global-set-key (kbd "H-<right>") 'evil-window-right)
-  (global-set-key (kbd "H-<up>") 'evil-window-up)
-  (global-set-key (kbd "H-<down>") 'evil-window-down)
+  (global-set-key (kbd "H-<up>") 'org-roam-find-file)
   (global-set-key (kbd "H-h") 'evil-window-left)
   (global-set-key (kbd "H-l") 'evil-window-right)
   (global-set-key (kbd "H-k") 'evil-window-up)
   (global-set-key (kbd "H-j") 'evil-window-down)
+
+  (spacemacs/set-leader-keys (kbd "<DEL>") 'spacemacs/kill-this-buffer)
 
   (defun ab/jump-master ()
     "Jump to master-file"
@@ -963,9 +1035,6 @@ as the default task."
     :ensure t
     :hook (org-mode . org-special-block-extras-mode))
 
-  (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
-
-
   ;; encryption config, from https://github.com/nickanderson/Level-up-your-notes-with-Org/blob/master/dot-spacemacs
   ;; http://yenliangl.blogspot.com/2009/12/encrypt-your-important-data-in-emacs.html
   ;; http://emacs-fu.blogspot.com/2011/02/keeping-your-secrets-secret.html
@@ -1017,9 +1086,21 @@ This function is called at the very end of Spacemacs initialization."
  '(elfeed-feeds
    (quote
     ("http://pubsonline.informs.org/action/showFeed?type=etoc&feed=rss&jc=moor")))
+ '(org-agenda-files
+   (quote
+    ("~/DSPI/TODOs.org" "~/projects/tgs-curl/TODOs.org" "~/research-wip/BDD-appl/TODOs.org" "~/BDD/TODOs.org" "~/projects/bochkarev.io/TODOs.org" "/home/bochkarev/orgmode/BM_story.org" "/home/bochkarev/orgmode/german.org" "/home/bochkarev/orgmode/labjournal.org" "/home/bochkarev/orgmode/master.org" "/home/bochkarev/orgmode/refile.org" "/home/bochkarev/orgmode/results.org")))
  '(package-selected-packages
    (quote
-    (elfeed-org elfeed-goodies ace-jump-mode noflet elfeed ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint indent-guide hydra lv hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-themes helm-swoop helm-projectile projectile pkg-info epl helm-mode-manager helm-make helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist highlight evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu elisp-slime-nav dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async))))
+    (tide typescript-mode tern nodejs-repl livid-mode skewer-mode js2-refactor multiple-cursors js2-mode js-doc import-js grizzl helm-gtags ggtags counsel-gtags counsel swiper add-node-modules-path ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint indent-guide hydra lv hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-themes helm-swoop helm-projectile projectile pkg-info epl helm-mode-manager helm-make helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist highlight evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu elisp-slime-nav dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async)))
+ '(safe-local-variable-values
+   (quote
+    ((eval progn
+           (org-babel-goto-named-src-block "setup")
+           (org-babel-execute-src-block)
+           (outline-hide-sublevels 1))
+     (javascript-backend . tide)
+     (javascript-backend . tern)
+     (javascript-backend . lsp)))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

@@ -3,8 +3,7 @@
 
 *Key things:*
 - customized orgmode
-- org-roam, org-roam-protocol, org-roam-bibtex
-- org-special-block-extras
+- org-roam, org-roam-protocol, org-roam-bibtex (fixed as of Dec 2020)
 - little dired tweaks
 - org-pomodoro
 - some personal snippets (yas)
