@@ -49,6 +49,8 @@ values."
           org-enable-github-support t
           org-projectile-file "TODOs.org"
           org-enable-hugo-support t)
+     (mu4e :variables
+       mu4e-installation-path "/usr/share/emacs/site-lisp/mu4e")
      ;; (shell :variables
      ;;        shell-default-height 30
      ;;        shell-default-position 'bottom)
@@ -93,6 +95,7 @@ values."
    dotspacemacs-additional-packages '(
                                       doom-themes
                                       org-roam-bibtex
+                                      org-roam-server
                                       org-special-block-extras
                                       all-the-icons-dired
                                       org-re-reveal-ref
@@ -764,6 +767,18 @@ as the default task."
                                      ))
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+    ;; org-roam-server setup
+    (setq org-roam-server-host "127.0.0.1"
+          org-roam-server-port 8080
+          org-roam-server-authenticate nil
+          org-roam-server-export-inline-images t
+          org-roam-server-serve-files nil
+          org-roam-server-served-file-extensions '("pdf" "mp4" "ogv")
+          org-roam-server-network-poll t
+          org-roam-server-network-arrows nil
+          org-roam-server-network-label-truncate t
+          org-roam-server-network-label-truncate-length 60
+          org-roam-server-network-label-wrap-length 20)
   ;; =================================== CUSTOM BIBTEX SETUP (ORG-REF) ===========================================
 
   ;; this file is to set up my reference management
@@ -853,7 +868,7 @@ as the default task."
   ;; set up Julia environment
   ;;(setq inferior-julia-program-name "~/distrib/julia/bin/julia")
 
-
+  
   ;; set-up projectile cash for fuzzy open-file search
   (setq projectile-enable-caching t)
 
@@ -997,6 +1012,163 @@ as the default task."
     )
   ;; end of orgmode-specific setup
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  ;; email setup (mu4e)
+  (with-eval-after-load 'mu4e
+    (setq mu4e-attachment-dir "~/Downloads")
+    (setq mu4e-change-filenames-when-moving t)
+
+    ;; config based on the Spacemacs docs
+;;; Set up some common mu4e variables
+
+    (setq mu4e-maildir "~/.mail"
+          mu4e-get-mail-command "mbsync -a"
+          mu4e-update-interval nil
+          mu4e-compose-signature-auto-include nil
+          mu4e-view-show-images t
+          mu4e-view-show-addresses t)
+
+;;; Mail directory shortcuts
+    (setq mu4e-maildir-shortcuts
+          '(("/CU/INBOX" . ?c)
+            ("/personal/INBOX" . ?p)))
+
+;;; Bookmarks
+    (setq mu4e-bookmarks
+          `(("flag:unread AND NOT flag:trashed" "Unread messages" ?u)
+            ("date:today..now" "Today's messages" ?t)
+            ("date:7d..now" "Last 7 days" ?w)
+            (,(mapconcat 'identity
+                         (mapcar
+                          (lambda (maildir)
+                            (concat "maildir:" (car maildir)))
+                          mu4e-maildir-shortcuts) " OR ")
+             "All inboxes" ?i)))
+
+    ;; setting up contexts
+    ;; source: https://www.djcbsoftware.nl/code/mu/mu4e/Contexts-example.html
+    (setq mu4e-contexts
+          `( ,(make-mu4e-context
+	             :name "Pri"
+	             :enter-func (lambda () (mu4e-message "Entering Private context"))
+               :leave-func (lambda () (mu4e-message "Leaving Private context"))
+	             ;; we match based on maildir
+	             :match-func (lambda (msg)
+			                       (when msg
+			                         (string-match-p "^/personal" (mu4e-message-field msg :maildir))))
+	             :vars '( ( user-mail-address	    . "a@bochkarev.io"  )
+		                    ( user-full-name	    . "Alexey Bochkarev" )
+		                    ( mu4e-compose-signature .
+		                      (concat
+		                       "Alexey Bochkarev\n"
+                           "www.bochkarev.io\n"
+		                       "telegram: @abochka\n"))
+                        ;; set up maildir folders
+                        (mu4e-sent-folder . "/personal/Sent")
+	                      (mu4e-drafts-folder . "/personal/Drafts")
+	                      (mu4e-trash-folder . "/personal/Trash")
+                        ;; sending mail preferences
+                        (smtpmail-queue-dir . "~/.mail/personal/queue/cur")
+	                      (message-send-mail-function . smtpmail-send-it)
+	                      (smtpmail-smtp-user . "a@bochkarev.io")
+	                      (smtpmail-starttls-credentials . (("smtp.mailbox.org" 587 nil nil)))
+	                      (smtpmail-auth-credentials . (expand-file-name "~/.authinfo.gpg"))
+	                      (smtpmail-default-smtp-server . "smtp.mailbox.org")
+	                      (smtpmail-smtp-server . "smtp.mailbox.org")
+	                      (smtpmail-smtp-service . 587)
+                        (stmpmail-stream-type 'ssl)
+	                      (smtpmail-debug-info . t)
+	                      (smtpmail-debug-verbose . t)
+                        ))
+             ,(make-mu4e-context
+	             :name "CU"
+	             :enter-func (lambda () (mu4e-message "Switch to the Clemson context"))
+               :leave-func (lambda () (mu4e-message "Leaving Clemson context"))
+	             ;; no leave-func
+	             ;; we match based on the maildir of the message
+	             ;; this matches maildir ... and its sub-directories
+	             :match-func (lambda (msg)
+			                       (when msg
+			                         (string-match-p "^/CU" (mu4e-message-field msg :maildir))))
+	             :vars '( ( user-mail-address	     . "abochka@g.clemson.edu" )
+		                    ( user-full-name	     . "Alexey Bochkarev" )
+		                    ( mu4e-compose-signature  .
+		                      (concat
+		                       "Alexey Bochkarev\n"
+                           "https://abochka.people.clemson.edu\n"
+		                       "telegram: @abochka\n"))
+                        ;; set up maildir folders
+                        (mu4e-sent-folder . "/CU/Sent")
+	                      (mu4e-drafts-folder . "/CU/Drafts")
+	                      (mu4e-trash-folder . "/CU/Trash")
+                        (mu4e-refile-folder . "/CU/Archive")
+                        ;; sending mail preferences
+                        (smtpmail-queue-dir . "~/.mail/CU/queue/cur")
+	                      (message-send-mail-function . smtpmail-send-it)
+	                      (smtpmail-smtp-user . "abochka@g.clemson.edu")
+	                      (smtpmail-starttls-credentials . (("smtp.gmail.com" 587 nil nil)))
+	                      (smtpmail-auth-credentials . (expand-file-name "~/.authinfo.gpg"))
+	                      (smtpmail-default-smtp-server . "smtp.gmail.com")
+	                      (smtpmail-smtp-server . "smtp.gmail.com")
+	                      (smtpmail-smtp-service . 587)
+	                      (smtpmail-debug-info . t)
+	                      (smtpmail-debug-verbose . t)
+                        ))
+             )))
+  (setq mu4e-context-policy 'pick-first)
+  (setq mu4e-compose-context-policy 'ask-if-none) ;; that's default, I guess
+
+  ;; set `mu4e-context-policy` and `mu4e-compose-policy` to tweak when mu4e should
+  ;; guess or ask the correct context, e.g.
+
+  ;; start with the first (default) context;
+  ;; default is to ask-if-none (ask when there's no context yet, and none match)
+  ;; (setq mu4e-context-policy 'pick-first)
+
+  ;; compose with the current context is no context matches;
+  ;; default is to ask
+  ;; (setq mu4e-compose-context-policy nil)
+
+  ;; the story with trashing
+  ;; see https://github.com/djcb/mu/issues/1136
+  (setf (alist-get 'trash mu4e-marks)
+        (list :char '("d" . "▼")
+              :prompt "dtrash"
+              :dyn-target (lambda (target msg)
+                            (mu4e-get-trash-folder msg))
+              :action (lambda (docid msg target)
+                        ;; Here's the main difference to the regular trash mark,
+                        ;; no +T before -N so the message is not marked as
+                        ;; IMAP-deleted:
+                        (mu4e~proc-move docid (mu4e~mark-check-target target) "-N"))))
+
+  ;; sending mail config
+  (setq mu4e-compose-in-new-frame t
+        mu4e-sent-messages-behavior 'delete
+        mu4e-compose-signature-auto-include t
+        mu4e-compose-format-flowed t
+        org-mu4e-convert-to-html t)
+
+  ;; spell check
+  (add-hook 'mu4e-compose-mode-hook
+            (defun my-do-compose-stuff ()
+              "My settings for message composition."
+              (visual-line-mode)
+              (use-hard-newlines -1)
+              (flyspell-mode)))
+  (require 'smtpmail)
+  (setq smtpmail-queue-mail nil)  ;; start in normal mode
+
+  (setq org-mu4e-convert-to-html t)
+  (setq mu4e-view-show-addresses 't)
+
+
+  (setq message-kill-buffer-on-exit t)
+  (setq mu4e-compose-dont-reply-to-self t)
+  ;; don't ask when quitting
+  (setq mu4e-confirm-quit nil)
+
+  ;;end of email config (mu4e) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
   ;; line numbers for orgmode fix (linum)
   ;; (setq relative-line-numbers-motion-function 'forward-visible-line)

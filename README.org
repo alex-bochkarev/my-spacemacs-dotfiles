@@ -8,3 +8,5 @@
 - org-pomodoro
 - some personal snippets (yas)
 - org-crypt for files encryption
+- mu4e configured (two contexts, different providers, sensible secrets,
+  send/receive, plain-text only)
