@@ -31,7 +31,7 @@ values."
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
    '(javascript
-     rust
+     rust ;; needed for Hugo (editing TOMLs)
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
@@ -43,6 +43,11 @@ values."
      emacs-lisp
      git
      markdown
+     (plantuml :variables
+               plantuml-default-exec-mode 'jar
+               plantuml-jar-path (expand-file-name "~/distrib/plantuml.1.2021.0.jar" )
+               org-plantuml-jar-path (expand-file-name "~/distrib/plantuml.1.2021.0.jar" ))
+
      (org :variables
           org-enable-roam-support t
           org-enable-org-journal-support t
@@ -54,12 +59,11 @@ values."
      ;; (shell :variables
      ;;        shell-default-height 30
      ;;        shell-default-position 'bottom)
-     ;; spell-checking
-     ;; syntax-checking
+     syntax-checking
      version-control
      graphviz
      yaml
-     octave
+     ;; octave
      html
      c-c++
      spell-checking
@@ -68,25 +72,25 @@ values."
      dap ;; new debugger for python layer
      (python :variables
              python-fill-column 99
-             python-formatter 'yapf)
-     (conda :variables conda-anaconda-home "~/distrib/anaconda3")
-     ess
+             python-formatter 'yapf
+             python-backend 'lsp
+             python-lsp-server 'pyright)
+     (conda :variables conda-anaconda-home "/home/bochkarev/distrib/anaconda3")
+     (ess :variables ess-r-backend 'lsp)
      (latex :variables latex-enable-folding t)
      bibtex
      pdf
      finance ;; ledger layer
      csv
      evil-commentary
+     (evil-snipe :variables evil-snipe-enable-alternate-f-and-t-behaviors t)
      themes-megapack
-     deft
+     ;; deft ;; don't use this, actually
      unicode-fonts
-     ;; journal -- since moved to the org layer in the develop branch
      (vinegar :variables
               vinegar-reuse-dired-buffer t)
      ;; elfeed setup
      (elfeed :variables rmh-elfeed-org-files (list "~/.spacemacs.d/elfeed.org"))
-     ;; fun
-     xkcd
      )
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
@@ -96,13 +100,12 @@ values."
                                       doom-themes
                                       org-roam-bibtex
                                       org-roam-server
-                                      org-special-block-extras
                                       all-the-icons-dired
-                                      org-re-reveal-ref
-;;                                      ob-ipython
+                                      ;; org-re-reveal-ref
                                       parchment-theme
                                       sunny-day-theme
                                       poet-theme
+                                      org-msg ;; email-related
                                       )
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -175,9 +178,8 @@ values."
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press <SPC> T n to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(professional
-                         doom-nord
-                         doom-nord-light)
+   dotspacemacs-themes '(moe-light
+                         doom-gruvbox)
    ;; If non nil the cursor color matches the state color in GUI Emacs.
    dotspacemacs-colorize-cursor-according-to-state t
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
@@ -217,7 +219,7 @@ values."
    dotspacemacs-retain-visual-state-on-shift t
    ;; If non-nil, J and K move lines up and down when in visual mode.
    ;; (default nil)
-   dotspacemacs-visual-line-move-text nil
+   dotspacemacs-visual-line-move-text t
    ;; If non nil, inverse the meaning of `g' in `:substitute' Evil ex-command.
    ;; (default nil)
    dotspacemacs-ex-substitute-global nil
@@ -309,7 +311,7 @@ values."
    ;;                       text-mode
    ;;   :size-limit-kb 1000)
    ;; (default nil)
-   dotspacemacs-line-numbers nil
+   dotspacemacs-line-numbers 'relative
    ;; Code folding method. Possible values are `evil' and `origami'.
    ;; (default 'evil)
    dotspacemacs-folding-method 'evil
@@ -426,6 +428,7 @@ you should place your code here."
                    "* TODO %?\n%U\n%a\n")
                   ("c" "Changelog entry (specific project)" entry(file+headline (lambda () (concat (projectile-project-root) "CHANGELOG.org")) "Current version")
                    "* %U: %? \n%a\n" :prepend t)
+
                   ;;;;; Journal templates ;;;;;
                   ("j" "=========== [J]ournal entries ============")
                   ("jj" "Journal entry" entry (function org-journal-find-location)
@@ -444,8 +447,8 @@ you should place your code here."
 
                   ;;;;; General-purpose templates ;;;;;
                   ("" "============ General-purpose templates ========")
-                  ("d" "A [d]istraction / phone call / etc." entry(file+headline org-workflow-file "Distractions")
-                   "* %? :REFILE: \n%U\n%a\n" :clock-in t :clock-resume t)
+                  ;; ("d" "A [d]istraction / phone call / etc." entry(file+headline org-workflow-file "Distractions")
+                  ;;  "* %? :REFILE: \n%U\n%a\n" :clock-in t :clock-resume t)
 
                   ("s" "A [s]ystem-related info / configs" entry(file+headline org-sys-log "Ecosystem")
                    "* %? \n%U\n")
@@ -467,29 +470,30 @@ you should place your code here."
                    "* %a\n Captured: %U\n %?\n")
 
                   ;;;;; Questions ;;;;;
-                  ("Q" "========== Questions tbd later / feedback ===============")
-                  ("Qs" "[S]tochastic opt (Dr. Song)" entry (file+olp org-workflow-file "Study" "IE 8930 Song" "Questions tbd") "**** %? \n")
-                  ("Qh" "[H]f (Dr. Neyens)" entry (file+olp org-workflow-file "Study" "IE 8000 HF" "Questions tbd") "**** %? \n")
-                  ("Qr" "[r]esearch-related (Dr. Smith)" entry (file+olp org-workflow-file "Research" "Questions tbd") "**** %? \n")
+                  ;; ("Q" "========== Questions tbd later / feedback ===============")
+                  ;; ("Qs" "[S]tochastic opt (Dr. Song)" entry (file+olp org-workflow-file "Study" "IE 8930 Song" "Questions tbd") "**** %? \n")
+                  ;; ("Qh" "[H]f (Dr. Neyens)" entry (file+olp org-workflow-file "Study" "IE 8000 HF" "Questions tbd") "**** %? \n")
+                  ("Q" "Question TBD w / Dr. Smith)" entry (file+olp org-workflow-file "Research" "Questions tbd") "**** %? \n")
 
-                  ("l" "========== Course log entries ================")
-                  ("lp" "Advanced [p]robability (Dr. Burak)" entry (file+olp org-workflow-file "Study" "IE 8880 Prob" "Course log") "**** %U %?")
-                  ("lo" "Advanced [o]R (Dr. Khademi)" entry (file+olp org-workflow-file "Study" "IE 8800 OR" "Course log") "**** %U %?")
-                  ("la" "[a]lgoritms (Dr. Dean)" entry (file+olp org-workflow-file "Study" "Algorithms" "Course log") "**** %U %?")
+                  ;; ("l" "========== Course log entries ================")
+                  ;; ("lp" "Advanced [p]robability (Dr. Burak)" entry (file+olp org-workflow-file "Study" "IE 8880 Prob" "Course log") "**** %U %?")
+                  ;; ("lo" "Advanced [o]R (Dr. Khademi)" entry (file+olp org-workflow-file "Study" "IE 8800 OR" "Course log") "**** %U %?")
+                  ;; ("la" "[a]lgoritms (Dr. Dean)" entry (file+olp org-workflow-file "Study" "Algorithms" "Course log") "**** %U %?")
 
                   ;;;;; Personal templates ;;;;;
                   ("p" "========== Personal issues and habits ========")
                   ("pp" "[p]ush-ups" plain (file+olp org-workflow-file "Habits" "Push-ups")
                    "%U >>> %?")
-                  ("B" "Break from focus" plain (file+olp org-workflow-file "Habits" "Breaks")
-                   "*** %U" :immediate-finish t)
+                  ;; ("B" "Break from focus" plain (file+olp org-workflow-file "Habits" "Breaks")
+                  ;;  "*** %U" :immediate-finish t)
                   )))
 
     (use-package org-protocol
       :after org)
 
-    (use-package org-re-reveal :after org)
-    (use-package org-re-reveal-ref :after org)
+    ;; disable it for now
+    ;; (use-package org-re-reveal :after org)
+    ;; (use-package org-re-reveal-ref :after org)
     ;; set-up agenda
     (setq org-agenda-files (list "~/orgmode"))
 
@@ -583,7 +587,6 @@ as the default task."
         "          ")
       )
 
-
     ;; ============================== The Core: custom agenda setup ==============================================
     (setq org-agenda-custom-commands
           '(
@@ -644,27 +647,29 @@ as the default task."
 
     ;; thunderlink setup -- opening emails direct;; with org-mac-link message:// links are handed over to the macOS system,
     ;; which has built-in handling. On Windows and Linux, we can use thunderlink!
-    (when (not (string-equal system-type "darwin"))
-      ;; modify this for your system
-      (setq thunderbird-program "~/distrib/thunderbird/thunderbird")
+    ;; (deactivated, since not supported by Thunderbird as of writing this. Now using mu4e)
 
-      (defun org-message-thunderlink-open (slash-message-id)
-        "Handler for org-link-set-parameters that converts a standard message:// link into
-   a thunderlink and then invokes thunderbird."
-        ;; remove any / at the start of slash-message-id to create real message-id
-        (let ((message-id
-               (replace-regexp-in-string (rx bos (* "/"))
-                                         ""
-                                         slash-message-id)))
-          (start-process
-           (concat "thunderlink: " message-id)
-           nil
-           thunderbird-program
-           "-thunderlink"
-           (concat "thunderlink://messageid=" message-id)
-           )))
-      ;; on message://aoeu link, this will call handler with //aoeu
-      (org-link-set-parameters "message" :follow #'org-message-thunderlink-open))
+   ;;  (when (not (string-equal system-type "darwin"))
+   ;;    ;; modify this for your system
+   ;;    (setq thunderbird-program "~/distrib/thunderbird/thunderbird")
+
+   ;;    (defun org-message-thunderlink-open (slash-message-id)
+   ;;      "Handler for org-link-set-parameters that converts a standard message:// link into
+   ;; a thunderlink and then invokes thunderbird."
+   ;;      ;; remove any / at the start of slash-message-id to create real message-id
+   ;;      (let ((message-id
+   ;;             (replace-regexp-in-string (rx bos (* "/"))
+   ;;                                       ""
+   ;;                                       slash-message-id)))
+   ;;        (start-process
+   ;;         (concat "thunderlink: " message-id)
+   ;;         nil
+   ;;         thunderbird-program
+   ;;         "-thunderlink"
+   ;;         (concat "thunderlink://messageid=" message-id)
+   ;;         )))
+   ;;    ;; on message://aoeu link, this will call handler with //aoeu
+   ;;    (org-link-set-parameters "message" :follow #'org-message-thunderlink-open))
 
     (with-eval-after-load 'org-agenda
       (require 'org-projectile)
@@ -673,8 +678,9 @@ as the default task."
                    (push file org-agenda-files)))
               (org-projectile-todo-files)))
 
-
     ;; ============================== End of the custom agenda setup ==============================================
+
+    (server-start)
 
     (setq spaceline-org-clock-p t)
 
@@ -721,6 +727,8 @@ as the default task."
        (python . t)
        (shell . t)
        (R . t)
+       (plantuml . t)
+       (makefile . t)
        ;; (ipython . t)
        )) ; this line activates ditaa
 
@@ -868,7 +876,7 @@ as the default task."
   ;; set up Julia environment
   ;;(setq inferior-julia-program-name "~/distrib/julia/bin/julia")
 
-  
+
   ;; set-up projectile cash for fuzzy open-file search
   (setq projectile-enable-caching t)
 
@@ -912,10 +920,6 @@ as the default task."
   (setq org-roam-directory "~/zettelkasten/")
   (setq org-roam-link-title-format "🕮:%s") ;; maybe? 🕮 § (doesn't look good in bold?)
 
-  ;; org-roam-bibtex
-;;   (setq orb-preformat-keywords
-;;         '("citekey" "title" "author" "keywords"))
-
   (setq orb-templates
         '(("r" "ref" plain (function org-roam-capture--get-point) ""
            :file-name "refs/${citekey}"
@@ -932,6 +936,7 @@ as the default task."
   ;; (setq helm-display-function 'helm-display-buffer-in-own-frame
   ;;       helm-display-buffer-reuse-frame t
   ;;       helm-use-undecorated-frame-option t)
+
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; define some custom (global) keybindings
   (global-set-key (kbd "H-c") 'org-capture)
@@ -939,8 +944,26 @@ as the default task."
   (global-set-key (kbd "H-/") 'org-roam-find-file)
   (global-set-key (kbd "H-a") 'org-agenda)
   (global-set-key (kbd "H-t") 'org-projectile/goto-todos)
+  ;; special files menu >>>
+  (spacemacs|define-transient-state ab|goto-special-file
+    :title "Go to a 'special' file (project-specific)"
+    :doc
+    "\n [_t_] TODOs list [_c_] change log [_r_/_R_] README{.org/.md} [_i_] .gitignore [_q_] quit"
+    :bindings
+    ("t" org-projectile/goto-todos :exit t)
+    ("c" (find-file (concat (projectile-project-root) "CHANGELOG.org")) :exit t)
+    ("R" (find-file (concat (projectile-project-root) "README.md")) :exit t)
+    ("r" (find-file (concat (projectile-project-root) "README.org")) :exit t)
+    ("i" (find-file (concat (projectile-project-root) ".gitignore")) :exit t)
+    ("q" nil :exit t))
+
+  (define-key evil-normal-state-map (kbd "H-g")
+    'spacemacs/ab|goto-special-file-transient-state/body)
+
+  ;; <<<
   (global-set-key (kbd "H-1") (lambda () (interactive) (find-file "~/orgmode/master.org")))
   (global-set-key (kbd "H-m") 'spacemacs/toggle-maximize-buffer)
+  (global-set-key (kbd "H-SPC") 'avy-goto-char)
 
   (global-set-key (kbd "H-s") 'org-save-all-org-buffers)
 
@@ -952,6 +975,10 @@ as the default task."
   (global-set-key (kbd "H-j") 'evil-window-down)
 
   (spacemacs/set-leader-keys (kbd "<DEL>") 'spacemacs/kill-this-buffer)
+
+  ;; use ripgrep instead of grep (way faster!)
+  ;; borrowed from https://gist.github.com/pesterhazy/fabd629fbb89a6cd3d3b92246ff29779
+  (evil-leader/set-key "/" 'spacemacs/helm-project-do-ag)
 
   (defun ab/jump-master ()
     "Jump to master-file"
@@ -998,16 +1025,17 @@ as the default task."
   (setq default-tab-width 4)
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Zettelkasten related config
-  ;; deft
-  (setq deft-recursive t)
-  (setq deft-use-filter-string-for-filename t)
-  (setq deft-use-filename-as-title nil)
-  (setq deft-default-extension "org")
-  (setq deft-directory "~/zettelkasten/")
+  ;; deft -- no longer used.
+  ;; (setq deft-recursive t)
+  ;; (setq deft-use-filter-string-for-filename t)
+  ;; (setq deft-use-filename-as-title nil)
+  ;; (setq deft-default-extension "org")
+  ;; (setq deft-directory "~/zettelkasten/")
+
   ;; org-journal
   (setq org-journal-date-prefix "#+TITLE: ")
   (setq org-journal-file-format "%Y-%m-%d.org")
-  (setq org-journal-dir "~/zettelkasten/journal/")
+  (setq org-journal-dir "~/zettelkasten/daily/")
   (setq org-journal-date-format "%A, %d %B %Y")
     )
   ;; end of orgmode-specific setup
@@ -1015,7 +1043,7 @@ as the default task."
 
   ;; email setup (mu4e)
   (with-eval-after-load 'mu4e
-    (setq mu4e-attachment-dir "~/Downloads")
+    (setq mu4e-attachment-dir "~/Downloads/email")
     (setq mu4e-change-filenames-when-moving t)
 
     ;; config based on the Spacemacs docs
@@ -1061,13 +1089,15 @@ as the default task."
 		                    ( mu4e-compose-signature .
 		                      (concat
 		                       "Alexey Bochkarev\n"
-                           "www.bochkarev.io\n"
+                           "https://www.bochkarev.io\n"
 		                       "telegram: @abochka\n"))
                         ;; set up maildir folders
                         (mu4e-sent-folder . "/personal/Sent")
 	                      (mu4e-drafts-folder . "/personal/Drafts")
 	                      (mu4e-trash-folder . "/personal/Trash")
+                        (mu4e-refile-folder . "/personal/Archive")
                         ;; sending mail preferences
+                        (mu4e-sent-messages-behavior . sent)
                         (smtpmail-queue-dir . "~/.mail/personal/queue/cur")
 	                      (message-send-mail-function . smtpmail-send-it)
 	                      (smtpmail-smtp-user . "a@bochkarev.io")
@@ -1095,7 +1125,7 @@ as the default task."
 		                    ( mu4e-compose-signature  .
 		                      (concat
 		                       "Alexey Bochkarev\n"
-                           "https://abochka.people.clemson.edu\n"
+                           "https://www.bochkarev.io\n"
 		                       "telegram: @abochka\n"))
                         ;; set up maildir folders
                         (mu4e-sent-folder . "/CU/Sent")
@@ -1103,6 +1133,7 @@ as the default task."
 	                      (mu4e-trash-folder . "/CU/Trash")
                         (mu4e-refile-folder . "/CU/Archive")
                         ;; sending mail preferences
+                        (mu4e-sent-messages-behavior . delete)
                         (smtpmail-queue-dir . "~/.mail/CU/queue/cur")
 	                      (message-send-mail-function . smtpmail-send-it)
 	                      (smtpmail-smtp-user . "abochka@g.clemson.edu")
@@ -1141,10 +1172,19 @@ as the default task."
                         ;; no +T before -N so the message is not marked as
                         ;; IMAP-deleted:
                         (mu4e~proc-move docid (mu4e~mark-check-target target) "-N"))))
+  (add-hook 'mu4e-headers-mode-hook
+	          (defun my/mu4e-change-headers ()
+	            (interactive)
+	            (setq mu4e-headers-fields
+		                `((:human-date . 12)
+		                  (:flags . 4)
+		                  (:from-or-to . 15)
+		                  (:subject . ,(- (window-body-width) 47))
+		                  (:size . 7)))))
 
   ;; sending mail config
   (setq mu4e-compose-in-new-frame t
-        mu4e-sent-messages-behavior 'delete
+        ;; mu4e-sent-messages-behavior 'delete ;; set up on the per-context basis
         mu4e-compose-signature-auto-include t
         mu4e-compose-format-flowed t
         org-mu4e-convert-to-html t)
@@ -1167,6 +1207,14 @@ as the default task."
   (setq mu4e-compose-dont-reply-to-self t)
   ;; don't ask when quitting
   (setq mu4e-confirm-quit nil)
+
+  ;; set up org-msg
+  (setq mail-user-agent 'mu4e-user-agent)
+
+  (setq org-msg-options "tex:dvipng html-postamble:nil H:5 num:nil ^:{} toc:nil author:nil email:nil \\n:t"
+	      org-msg-startup "hidestars indent inlineimages"
+	      org-msg-default-alternatives '(text html))
+  (org-msg-mode) ;; so it fires up by default
 
   ;;end of email config (mu4e) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -1203,9 +1251,9 @@ as the default task."
   (setq yas-snippet-dirs (append yas-snippet-dirs
                                  '("~/.spacemacs.d/snippets"))) ;; append with a personal snippets collection
 
-  (use-package org-special-block-extras
-    :ensure t
-    :hook (org-mode . org-special-block-extras-mode))
+  ;; (use-package org-special-block-extras
+  ;;   :ensure t
+  ;;   :hook (org-mode . org-special-block-extras-mode))
 
   ;; encryption config, from https://github.com/nickanderson/Level-up-your-notes-with-Org/blob/master/dot-spacemacs
   ;; http://yenliangl.blogspot.com/2009/12/encrypt-your-important-data-in-emacs.html
@@ -1225,6 +1273,9 @@ as the default task."
 
   ;; This prevents the crypt tag from being included in inheritance.
   (setq org-tags-exclude-from-inheritance (quote ("crypt")))
+
+  ;; set up ESS
+  ;; (add-hook 'ess-r-post-run-hook (lambda () (ess-load-file "~/.spacemacs.d/ESS-autorun.R")))
   ;; ab/config end
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   )
@@ -1256,27 +1307,24 @@ This function is called at the very end of Spacemacs initialization."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(elfeed-feeds
-   (quote
-    ("http://pubsonline.informs.org/action/showFeed?type=etoc&feed=rss&jc=moor")))
+   '("http://pubsonline.informs.org/action/showFeed?type=etoc&feed=rss&jc=moor"))
+ '(mml-secure-openpgp-sign-with-sender t)
  '(org-agenda-files
-   (quote
-    ("~/DSPI/TODOs.org" "~/projects/tgs-curl/TODOs.org" "~/research-wip/BDD-appl/TODOs.org" "~/BDD/TODOs.org" "~/projects/bochkarev.io/TODOs.org" "/home/bochkarev/orgmode/BM_story.org" "/home/bochkarev/orgmode/german.org" "/home/bochkarev/orgmode/labjournal.org" "/home/bochkarev/orgmode/master.org" "/home/bochkarev/orgmode/refile.org" "/home/bochkarev/orgmode/results.org")))
+   '("~/DSPI/TODOs.org" "~/projects/tgs-curl/TODOs.org" "~/research-wip/BDD-appl/TODOs.org" "~/BDD/TODOs.org" "~/projects/bochkarev.io/TODOs.org" "/home/bochkarev/orgmode/BM_story.org" "/home/bochkarev/orgmode/german.org" "/home/bochkarev/orgmode/labjournal.org" "/home/bochkarev/orgmode/master.org" "/home/bochkarev/orgmode/refile.org" "/home/bochkarev/orgmode/results.org"))
  '(package-selected-packages
-   (quote
-    (tide typescript-mode tern nodejs-repl livid-mode skewer-mode js2-refactor multiple-cursors js2-mode js-doc import-js grizzl helm-gtags ggtags counsel-gtags counsel swiper add-node-modules-path ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint indent-guide hydra lv hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-themes helm-swoop helm-projectile projectile pkg-info epl helm-mode-manager helm-make helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist highlight evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu elisp-slime-nav dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async)))
+   '(tide typescript-mode tern nodejs-repl livid-mode skewer-mode js2-refactor multiple-cursors js2-mode js-doc import-js grizzl helm-gtags ggtags counsel-gtags counsel swiper add-node-modules-path ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint indent-guide hydra lv hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-themes helm-swoop helm-projectile projectile pkg-info epl helm-mode-manager helm-make helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist highlight evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu elisp-slime-nav dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async))
  '(safe-local-variable-values
-   (quote
-    ((eval progn
+   '((eval progn
            (org-babel-goto-named-src-block "setup")
            (org-babel-execute-src-block)
            (outline-hide-sublevels 1))
      (javascript-backend . tide)
      (javascript-backend . tern)
-     (javascript-backend . lsp)))))
+     (javascript-backend . lsp))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(font-lock-variable-name-face ((t (:foreground "#000000" :weight bold)))))
 )

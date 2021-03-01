@@ -10,3 +10,5 @@
 - org-crypt for files encryption
 - mu4e configured (two contexts, different providers, sensible secrets,
   send/receive, plain-text only)
+- python config
+- evil-snipe for moving around

@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: nolint
+# key: nl
+# --
+# pylint: disable=all

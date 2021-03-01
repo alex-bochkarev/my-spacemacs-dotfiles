@@ -4,7 +4,7 @@
 # --
 import argparse as ap
 
-parser = ap.ArgumentParser(description="$1 (c) A. Bochkarev, 2020",
+parser = ap.ArgumentParser(description="$1 (c) A. Bochkarev, 2021",
        formatter_class=ap.ArgumentDefaultsHelpFormatter)
 
 parser.add_argument("-i", "--in", action="store", dest="$2", help="$2")

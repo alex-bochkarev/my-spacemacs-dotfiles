@@ -1,0 +1,30 @@
+# -*- mode: snippet -*-
+# name: new-org-hugo-post
+# key: hugo-newpost
+# --
+#+hugo_base_dir: ~/projects/bochkarev.io
+
+# hugo_section is a folder inside 'content'
+#+hugo_section: $1
+#+hugo_auto_set_lastmod: t
+#+hugo_front_matter_format: yaml
+
+#+title: $2
+
+#+date: `(format-time-string "%Y-%m-%d")`
+#+author: admin
+
+#+hugo_tags: $3
+#+hugo_categories: $4
+
+#+begin_src yaml :front_matter_extra t
+summary: $0
+
+links:
+- icon: "i-gh"
+  name: "Repo"
+  url: "https://github.com/alex-bochkarev/SMTB-Algo"
+#+end_src
+
+# available links are: i-envelope, i-twitter, i-tg, i-key, i-keybase, i-gh,
+# i-wiki, i-outside, i-date, hamburger, i-pdf, i-heart, i-ipynb

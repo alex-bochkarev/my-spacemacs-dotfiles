@@ -1,3 +1,5 @@
 * Current version
+** [2021-02-12 Fri 12:36]:  added a Google style docstring snippet
+ [[file:~/.spacemacs.d/snippets/python-mode/Python Google style Docstring::contributor: Alexey Bochkarev]]
 ** [2020-06-12 Fri 12:31]: changed the daily agenda blocks order
 (moved the refile block up, so it doesn't get buried under general =TODO=-s)
