@@ -43,6 +43,7 @@ values."
      emacs-lisp
      git
      markdown
+     json
      (plantuml :variables
                plantuml-default-exec-mode 'jar
                plantuml-jar-path (expand-file-name "~/distrib/plantuml.1.2021.0.jar" )
@@ -75,6 +76,7 @@ values."
              python-formatter 'yapf
              python-backend 'lsp
              python-lsp-server 'pyright)
+     ipython-notebook
      (conda :variables conda-anaconda-home "/home/bochkarev/distrib/anaconda3")
      (ess :variables ess-r-backend 'lsp)
      (latex :variables latex-enable-folding t)
@@ -91,6 +93,7 @@ values."
               vinegar-reuse-dired-buffer t)
      ;; elfeed setup
      (elfeed :variables rmh-elfeed-org-files (list "~/.spacemacs.d/elfeed.org"))
+     evil-russian
      )
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
@@ -941,6 +944,7 @@ as the default task."
   ;; define some custom (global) keybindings
   (global-set-key (kbd "H-c") 'org-capture)
   (global-set-key (kbd "H-q") 'org-fill-paragraph)
+  (global-set-key (kbd "H-й") 'org-fill-paragraph)
   (global-set-key (kbd "H-/") 'org-roam-find-file)
   (global-set-key (kbd "H-a") 'org-agenda)
   (global-set-key (kbd "H-t") 'org-projectile/goto-todos)
@@ -974,11 +978,12 @@ as the default task."
   (global-set-key (kbd "H-k") 'evil-window-up)
   (global-set-key (kbd "H-j") 'evil-window-down)
 
-  (spacemacs/set-leader-keys (kbd "<DEL>") 'spacemacs/kill-this-buffer)
+  (spacemacs/set-leader-keys (kbd "<ESC>") 'spacemacs/kill-this-buffer)
 
   ;; use ripgrep instead of grep (way faster!)
   ;; borrowed from https://gist.github.com/pesterhazy/fabd629fbb89a6cd3d3b92246ff29779
   (evil-leader/set-key "/" 'spacemacs/helm-project-do-ag)
+  (setq helm-ag-base-command "rg --vimgrep --no-heading --smart-case")
 
   (defun ab/jump-master ()
     "Jump to master-file"

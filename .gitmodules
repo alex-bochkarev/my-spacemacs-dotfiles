@@ -1,0 +1,3 @@
+[submodule "layers/evil-russian"]
+	path = layers/evil-russian
+	url = https://github.com/artempyanykh/evil-russian.git

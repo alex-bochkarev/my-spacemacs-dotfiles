@@ -10,7 +10,7 @@
          (formatted-args
           (mapconcat
            (lambda (x)
-             (concat "   "
+             (concat "    "
                      (nth 0 x)
                      " (${type}):"
                      " ${description}"

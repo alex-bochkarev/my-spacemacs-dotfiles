@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: new_layer
+# key: lr
+# --
+package $1 {
+        \($2\) as "$3"
+        ($4) as "$5"
+        $2 -[hidden]right- $4
+}
+
+$0.. $2
+-- $4
