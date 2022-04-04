@@ -1,14 +1,8 @@
-#+TITLE: Personal Spacemacs config
+#+TITLE: Personal Spacemacs config (2022 revision)
 #+AUTHOR: A. Bochkarev
 
 *Key things:*
-- customized orgmode
-- org-roam, org-roam-protocol, org-roam-bibtex (fixed as of Dec 2020)
-- little dired tweaks
-- org-pomodoro
+- customized orgmode, capture, and agenda
+- org-roam, org-roam-protocol
 - some personal snippets (yas)
-- org-crypt for files encryption
-- mu4e configured (two contexts, different providers, sensible secrets,
-  send/receive, plain-text only)
-- python config
-- evil-snipe for moving around
+- mu4e and org-msg
