@@ -32,7 +32,8 @@ This function should only modify configuration layer settings."
 
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(rust ;; note: needed for Hugo / editing TOML files
+   '(octave
+     rust ;; note: needed for Hugo / editing TOML files
      csv
      graphviz
      python
@@ -917,18 +918,19 @@ before packages are loaded."
         '(
           ("d" "Daily agenda"
            (
-            (agenda "" ((org-agenda-overriding-header "== Calendar: ==============================================="))
-                    (org-agenda-sorting-strategy '(priority-down)))
+            (agenda "" ((org-agenda-overriding-header "== Calendar: ========================================================================================================="))
+                    (org-agenda-sorting-strategy '(priority-down))
+                    (org-agenda-skip-function '(org-agenda-skip-entry-if 'done)))
             (todo "WIP"
-                       ((org-agenda-overriding-header "== Started / WIP: ===============================================")))
-            (todo "KONTROLLE"
-                       ((org-agenda-overriding-header "== Control / watch / awaiting: ==============================="))
+                       ((org-agenda-overriding-header "== Started / WIP: ====================================================================================================")))
+            (todo "KTL"
+                       ((org-agenda-overriding-header "== Control / watch / awaiting: ======================================================================================="))
                        (org-agenda-sorting-strategy '(priority-down)))
             (todo "LATER"
-                       ((org-agenda-overriding-header "== LATER pool: ============================================")
+                       ((org-agenda-overriding-header "== LATER pool: =======================================================================================================")
                         ))
             (todo "TODO"
-                  ((org-agenda-overriding-header "== Not scheduled: ============================================")
+                  ((org-agenda-overriding-header "== Not scheduled: ====================================================================================================")
                    (org-agenda-skip-function '(org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp))))))
 
           ("c" "The calendar plan: key dates."
@@ -984,7 +986,11 @@ before packages are loaded."
                 ("w" "Web note idea (blog)" entry (file+headline org-blog-file "Ideas for notes")
                  "* %?\n%U\n")
                 ("d" "A distraction!" entry (file org-distractions-file)
-                 "* %?\n Link: %a\n Captured: %U\n"))))
+                 "* %?\n Link: %a\n Captured: %U\n")
+                ("r" "Daily result" entry (file+olp org-current-file "Daily inbox" "Results")
+                 "* %? \n%a\n%U\n" :prepend t)
+                ("k" "Things to do with kids" entry (file+olp org-current-file "Kids" "Activity")
+                 "* %? \n%a\n%U\n" :prepend t))))
 
   ;; refiling config
   (setq org-refile-targets '((org-agenda-files :maxlevel . 3)))
