@@ -6,3 +6,6 @@
 - org-roam, org-roam-protocol
 - some personal snippets (yas)
 - mu4e and org-msg
+- python with tests (pytest)
+- julia layer
+- smooth window/frame motion with i3wm on ~H-h/j/k/l~

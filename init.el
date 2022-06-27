@@ -34,9 +34,11 @@ This function should only modify configuration layer settings."
    dotspacemacs-configuration-layers
    '(octave
      rust ;; note: needed for Hugo / editing TOML files
+     julia
      csv
      graphviz
-     python
+     (python :variables python-test-runner 'pytest)
+     restructuredtext
      git
      javascript
      html
@@ -579,13 +581,19 @@ before packages are loaded."
   (setq modus-themes-syntax '(green-strings yellow-comments alt-syntax)) ;; for modus-themes
   (setq modus-themes-bold-constructs t)
 
+  (defun my-modus-themes-custom-faces ()
+    (modus-themes-with-colors
+      (custom-set-faces
+       `(fill-column-indicator ((,class :height 2.0 :background ,bg-inactive :foreground ,bg-inactive))))))
+  (add-hook 'modus-themes-after-load-theme-hook #'my-modus-themes-custom-faces)
+
   (setq org-ellipsis "↴") ;; might want to consider: ▼, ⤵, ↴, ⬎, ⤷, ⋱
   ;; end of theme config
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; bibtex config
   (setq bibtex-completion-bibliography '("~/Dropbox/bibliography/references.bib"))
-
+  (setq my-bib "~/Dropbox/bibliography/references.bib")  ;; for 'bib' template
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; org-roam config
   (setq org-roam-directory (file-truename "~/PKB/notes"))
@@ -828,9 +836,9 @@ before packages are loaded."
 
   ;; special places config >>>
   (spacemacs|define-transient-state ab|goto-special-file
-    :title "Go to a 'special' file (project-specific)"
+    :title "Go to a 'special' project-specific file."
     :doc
-    "\n [_t_] TODOs list [_c_] change log [_r_/_R_] README{.org/.md} \n [_i_] .gitignore [_m_] Makefile [_q_] quit"
+    "\n [_t_] TODOs list [_c_] change log [_r_/_R_] README{.org/.md} \n [_i_] .gitignore [_T_] .ctagsignore [_m_] Makefile [_s_] setup.el\n [_q_] quit"
     :bindings
     ("t" org-projectile/goto-todos :exit t)
     ("c" (find-file (concat (projectile-project-root) "CHANGELOG.org")) :exit t)
@@ -839,17 +847,18 @@ before packages are loaded."
     ("i" (find-file (concat (projectile-project-root) ".gitignore")) :exit t)
     ("T" (find-file (concat (projectile-project-root) ".ctagsignore")) :exit t)
     ("m" (find-file (concat (projectile-project-root) "Makefile")) :exit t)
+    ("s" (find-file (concat (projectile-project-root) "setup.el")) :exit t)
     ("q" nil :exit t))
 
-  (define-key evil-normal-state-map (kbd "H-f")
+  (define-key evil-normal-state-map (kbd "H-p")
     'spacemacs/ab|goto-special-file-transient-state/body)
 
   (spacemacs|define-transient-state ab|goto-file
-    :title "Special 'locations' menu."
+    :title "Special 'locations': Goto-menu."
     :doc
-    "\n [_f_] Current org-file [_r_] Reading list [_d_] Distracted [_m_] mobile inbox [_j_] Job search \n [_w_] website notes [_s_] startpage [_p_] projects folder [_q_] quit"
+    "\n [_g_] Current org-file [_r_] Reading list [_d_] Distracted [_m_] mobile inbox [_j_] Job search \n [_w_] website notes [_s_] startpage [_p_] projects folder [_q_] quit"
     :bindings
-    ("f" (find-file org-current-file) :exit t)
+    ("g" (find-file org-current-file) :exit t)
     ("r" (find-file org-readme-file) :exit t)
     ("d" (find-file org-distractions-file) :exit t)
     ("m" (find-file org-mobile-file) :exit t)
@@ -859,18 +868,26 @@ before packages are loaded."
     ("p" (find-file "~/projects/") :exit t)
     ("q" nil :exit t))
 
-  (global-set-key (kbd "H-l") 'spacemacs/ab|goto-file-transient-state/body)
+  (global-set-key (kbd "H-g") 'spacemacs/ab|goto-file-transient-state/body)
+
+  (global-set-key (kbd "H-h") 'evil-window-left)
+  (global-set-key (kbd "H-l") 'evil-window-right)
+  (global-set-key (kbd "H-j") 'evil-window-down)
+  (global-set-key (kbd "H-k") 'evil-window-up)
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; general user keybindings
   (spacemacs|define-transient-state ab|goto-config-file
     :title "dotfiles menu"
     :doc
-    "\n [_e_] emacs [_z_] z-shell [_a_] aliases [_c_] config folder [_q_] quit"
+    "\n [_e_] emacs [_z_] z-shell [_a_] aliases [_3_] i3wm [_s_] statusbar [_c_] config folder \n [_j_] my emoJis [_q_] quit"
     :bindings
     ("e" (find-file "~/.spacemacs.d/init.el") :exit t)
+    ("j" (find-file "~/.config/rofimoji/data/favorites.csv") :exit t)
     ("z" (find-file "~/.zshrc") :exit t)
     ("a" (find-file "~/.config/zsh_aliases") :exit t)
+    ("3" (find-file "~/.config/i3/config") :exit t)
+    ("s" (find-file "~/.config/i3status-rust/config.toml") :exit t)
     ("c" (find-file "~/.config/") :exit t)
     ("q" nil :exit t))
 
@@ -879,6 +896,7 @@ before packages are loaded."
 
   ;; orgmode ecosystem setup
 
+  (setq org-list-allow-alphabetical t)
   (setq org-clock-out-remove-zero-time-clocks t)
   ;; key files for the ecosystem
 
@@ -1002,7 +1020,7 @@ before packages are loaded."
   (setq helm-ag-base-command "rg --vimgrep --no-heading --smart-case")
 
   (setq yas-snippet-dirs (append yas-snippet-dirs
-                                 '("~/projects/.spacemacs.d/snippets"))) ;; append with a personal snippets collection
+                                 '("~/.spacemacs.d/snippets"))) ;; append with a personal snippets collection
 
   ;; ctags config
   (setq projectile-tags-command "ctags -Re --tag-relative=yes --exclude=@.ctagsignore -f \"%s\" %s .")
