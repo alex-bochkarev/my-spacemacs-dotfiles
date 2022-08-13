@@ -5,7 +5,7 @@
 - customized orgmode, capture, and agenda
 - org-roam, org-roam-protocol
 - some personal snippets (yas)
-- mu4e and org-msg
-- python with tests (pytest)
+- mu4e and org-msg (fixed with ver. 1.8 / new path from =mailutis=)
+- python with tests (pytest) + ipython
 - julia layer
 - smooth window/frame motion with i3wm on ~H-h/j/k/l~

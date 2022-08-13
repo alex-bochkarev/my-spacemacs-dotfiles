@@ -38,6 +38,7 @@ This function should only modify configuration layer settings."
      csv
      graphviz
      (python :variables python-test-runner 'pytest)
+     ipython-notebook
      restructuredtext
      git
      javascript
@@ -82,7 +83,7 @@ This function should only modify configuration layer settings."
 
      ;; mail setup
      (mu4e :variables
-           mu4e-installation-path "/usr/share/emacs/site-lisp/mu4e")
+           mu4e-installation-path "/usr/share/emacs/site-lisp/elpa/mu4e-1.8.7")
 
      ess
      ;; latex setup
@@ -210,6 +211,13 @@ It should only modify the values of Spacemacs settings."
    ;; If the value is nil then no banner is displayed. (default 'official)
    dotspacemacs-startup-banner 'random
 
+   ;; Scale factor controls the scaling (size) of the startup banner. Default
+   ;; value is `auto' for scaling the logo automatically to fit all buffer
+   ;; contents, to a maximum of the full image height and a minimum of 3 line
+   ;; heights. If set to a number (int or float) it is used as a constant
+   ;; scaling factor for the default logo size.
+   dotspacemacs-startup-banner-scale 'auto
+
    ;; List of items to show in startup buffer or an association list of
    ;; the form `(list-type . list-size)`. If nil then it is disabled.
    ;; Possible values for list-type are:
@@ -231,6 +239,11 @@ It should only modify the values of Spacemacs settings."
 
    ;; The minimum delay in seconds between number key presses. (default 0.4)
    dotspacemacs-startup-buffer-multi-digit-delay 0.4
+
+   ;; If non-nil, show file icons for entries and headings on Spacemacs home buffer.
+   ;; This has no effect in terminal or if "all-the-icons" package or the font
+   ;; is not installed. (default nil)
+   dotspacemacs-startup-buffer-show-icons t
 
    ;; Default major mode for a new empty buffer. Possible values are mode
    ;; names such as `text-mode'; and `nil' to use Fundamental mode.
@@ -437,7 +450,7 @@ It should only modify the values of Spacemacs settings."
 
    ;; Code folding method. Possible values are `evil', `origami' and `vimish'.
    ;; (default 'evil)
-   dotspacemacs-folding-method 'evil
+   dotspacemacs-folding-method 'vimish
 
    ;; If non-nil and `dotspacemacs-activate-smartparens-mode' is also non-nil,
    ;; `smartparens-strict-mode' will be enabled in programming modes.
@@ -912,10 +925,12 @@ before packages are loaded."
   (setq org-agenda-files
         '("~/org"
           "~/projects/DSPI"
+          "~/projects/BDDs"
           "~/projects/DSPI-MCTS-paper"
           "~/projects/align-BDD"
           "~/projects/br-sorting"
-          "~/PKB/notes/website.org"))
+          "~/PKB/notes/website.org"
+          "~/dotfiles"))
 
   (setq org-use-fast-todo-selection t)
 
@@ -1030,7 +1045,7 @@ before packages are loaded."
   (require 'ox-extra) ;; :ignore: feature
   (ox-extras-activate '(ignore-headlines))
 
-  (pixel-scroll-precision-mode)
+  (pixel-scroll-mode)
 
   ;; prevent ~undo-tree~ files from appearing everywhere
   (setq undo-tree-history-directory-alist '(("." . "~/.spacemacs.d/undo")))
