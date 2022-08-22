@@ -39,10 +39,9 @@ This function should only modify configuration layer settings."
      graphviz
      (python :variables python-test-runner 'pytest)
      ipython-notebook
-     restructuredtext
-     git
-     javascript
+     restructuredtext git javascript
      html
+     search-engine
      ;; gtags
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
@@ -590,6 +589,16 @@ configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
 
+  ;; general options
+  ;; do not create lockfiles, see https://develop.spacemacs.org/doc/FAQ.html#why-do-i-get-files-starting-with-
+  (setq create-lockfiles nil)
+
+  ;; search engines integration
+  (setq browse-url-browser-function 'browse-url-generic
+        engine/browser-function 'browse-url-generic
+        browse-url-generic-program "qutebrowser")
+  (setq-default search-engine-amazon-tld "de")
+
   ;; theme and general visuals config
   (setq modus-themes-syntax '(green-strings yellow-comments alt-syntax)) ;; for modus-themes
   (setq modus-themes-bold-constructs t)
@@ -888,6 +897,7 @@ before packages are loaded."
   (global-set-key (kbd "H-j") 'evil-window-down)
   (global-set-key (kbd "H-k") 'evil-window-up)
 
+  (global-set-key (kbd "H-s") 'spacemacs/search-engine-select)
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; general user keybindings
   (spacemacs|define-transient-state ab|goto-config-file
@@ -1028,6 +1038,35 @@ before packages are loaded."
   ;; refiling config
   (setq org-refile-targets '((org-agenda-files :maxlevel . 3)))
   ;; << end of capture setup
+
+  ;; julia-specific customizations >>>
+  (defun ab|julia-close-this ()
+    "Adds `end' on the next line, with the same indent."
+    (interactive)
+    (save-excursion (let (cur-indent (current-indentation))
+                      (move-end-of-line nil)
+                      (newline)
+                      (insert "end")
+                      (julia-indent-line))))
+
+  (evil-define-key '(normal insert) julia-mode-map (kbd "H-<return>") 'ab|julia-close-this)
+  (spacemacs|define-transient-state ab|julia-insert-symbol
+    :title "Insert symbol"
+    :doc
+    "\n [_a_] α [_b_] β [_p_] π [_D_] Δ [_d_] δ\n [_'_] prime [_i_] in [_n_] not in [_q_] quit"
+    :bindings
+    ("a"  (insert "α") :exit t)
+    ("b"  (insert "β") :exit t)
+    ("p"  (insert "π") :exit t)
+    ("D"  (insert "Δ") :exit t)
+    ("d"  (insert "δ") :exit t)
+    ("'"  (insert "′") :exit t)
+    ("i"  (insert "∈") :exit t)
+    ("n"  (insert "∉") :exit t)
+    ("q" nil :exit t))
+
+    (evil-define-key '(insert) julia-mode-map (kbd "H-'") 'spacemacs/ab|julia-insert-symbol-transient-state/body)
+  ;; <<< end of julia-specific customizations
 
   ;; use ripgrep instead of grep (way faster!)
   ;; borrowed from https://gist.github.com/pesterhazy/fabd629fbb89a6cd3d3b92246ff29779

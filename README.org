@@ -7,5 +7,6 @@
 - some personal snippets (yas)
 - mu4e and org-msg (fixed with ver. 1.8 / new path from =mailutis=)
 - python with tests (pytest) + ipython
-- julia layer
+- julia layer with a few convenience functions
 - smooth window/frame motion with i3wm on ~H-h/j/k/l~
+- (somewhat) quick web search
