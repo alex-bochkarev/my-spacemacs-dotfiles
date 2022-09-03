@@ -950,6 +950,16 @@ before packages are loaded."
 
   (setq org-tags-exclude-from-inheritance '("keydate")) ;; that was the logic of keydate tag (needed for simple calendar generation)
 
+  ;; a few helper functions
+  (defun ab/jump-to-parent-and-fold ()
+    "Jumps to the parent heading in the orgmode and folds it."
+    (interactive)
+    (if (org-at-heading-p)
+        (outline-up-heading 1)
+      (outline-previous-heading))
+    (org-cycle))
+
+  (evil-define-key '(normal insert) org-mode-map (kbd "H-q") 'ab/jump-to-parent-and-fold)
   ;; ============================== The Core: custom agenda setup ==============================================
   (defun ab/get-date-if-not-nil(datearg)
     "Returns date if not nil and nil otherwise"
@@ -994,6 +1004,7 @@ before packages are loaded."
 
   (global-set-key (kbd "H-i") 'org-clock-in)
   (global-set-key (kbd "H-o") 'org-clock-out)
+
 
   ;; for resolving idle time - ask me if I seem to be out
   (setq org-clock-idle-time 15)

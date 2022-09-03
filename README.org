@@ -10,3 +10,5 @@
 - julia layer with a few convenience functions
 - smooth window/frame motion with i3wm on ~H-h/j/k/l~
 - (somewhat) quick web search
+- orgmode: added =ab/jump-to-parent-and-fold= (~H-q~)
+  (seems handy when editing large prose/paper in org)
