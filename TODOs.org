@@ -1,6 +1,13 @@
 * Current project TODOs
-** TODO Avoid duplicates in agenda
+** TODO Maybe add beancount layer?
+[2022-10-19 Wed 10:40]
+
+Would still add some usability, I guess...
+** DONE Avoid duplicates in agenda
+CLOSED: [2022-10-19 Wed 10:41]
+- State "DONE"       from "TODO"       [2022-10-19 Wed 10:41]
  [2020-08-03 Mon 16:18]
- [[file:~/.spacemacs.d/.spacemacs::(push file org-agenda-files)))]]
- 
 Need to check if =file= is in =org-agenda-files= already (and add only if not)
+
+I guess the problem is solved as long as I set up =org-agenda-files= explicitly
+(not =push=-ing, but =setq=-ing).

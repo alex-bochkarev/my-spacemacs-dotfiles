@@ -32,7 +32,8 @@ This function should only modify configuration layer settings."
 
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(octave
+   '(haskell
+     octave
      rust ;; note: needed for Hugo / editing TOML files
      julia
      csv
@@ -82,7 +83,7 @@ This function should only modify configuration layer settings."
 
      ;; mail setup
      (mu4e :variables
-           mu4e-installation-path "/usr/share/emacs/site-lisp/elpa/mu4e-1.8.7")
+           mu4e-installation-path "/usr/share/emacs/site-lisp/elpa/mu4e-1.8.10")
 
      ess
      ;; latex setup
@@ -267,7 +268,7 @@ It should only modify the values of Spacemacs settings."
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press `SPC T n' to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(doom-gruvbox-light modus-operandi modus-vivendi)
+   dotspacemacs-themes '(doom-nord modus-operandi modus-vivendi)
 
    ;; Set the theme for the Spaceline. Supported themes are `spacemacs',
    ;; `all-the-icons', `custom', `doom', `vim-powerline' and `vanilla'. The
@@ -878,7 +879,7 @@ before packages are loaded."
   (spacemacs|define-transient-state ab|goto-file
     :title "Special 'locations': Goto-menu."
     :doc
-    "\n [_g_] Current org-file [_r_] Reading list [_d_] Distracted [_m_] mobile inbox [_j_] Job search \n [_w_] website notes [_s_] startpage [_p_] projects folder [_q_] quit"
+    "\n [_g_] Current org-file [_r_] Reading list [_d_] Distracted [_m_] mobile inbox [_j_] Job search [_S_] Shopping list\n [_w_] website notes [_s_] startpage [_p_] projects folder [_l_] ledger file [_q_] quit"
     :bindings
     ("g" (find-file org-current-file) :exit t)
     ("r" (find-file org-readme-file) :exit t)
@@ -886,7 +887,9 @@ before packages are loaded."
     ("m" (find-file org-mobile-file) :exit t)
     ("j" (find-file "~/org/js2021.org") :exit t)
     ("w" (find-file "~/PKB/notes/website.org") :exit t)
+    ("S" (find-file "~/org/shopping.org") :exit t)
     ("s" (find-file "~/projects/startpage/start.html") :exit t)
+    ("l" (find-file "~/finance/ledger.beancount") :exit t)
     ("p" (find-file "~/projects/") :exit t)
     ("q" nil :exit t))
 
@@ -903,13 +906,14 @@ before packages are loaded."
   (spacemacs|define-transient-state ab|goto-config-file
     :title "dotfiles menu"
     :doc
-    "\n [_e_] emacs [_z_] z-shell [_a_] aliases [_3_] i3wm [_s_] statusbar [_c_] config folder \n [_j_] my emoJis [_q_] quit"
+    "\n [_e_] emacs [_z_] z-shell [_a_] aliases [_3_] i3wm [_m_] xmonad [_s_] statusbar [_c_] config folder \n [_j_] my emoJis [_q_] quit"
     :bindings
     ("e" (find-file "~/.spacemacs.d/init.el") :exit t)
     ("j" (find-file "~/.config/rofimoji/data/favorites.csv") :exit t)
     ("z" (find-file "~/.zshrc") :exit t)
     ("a" (find-file "~/.config/zsh_aliases") :exit t)
     ("3" (find-file "~/.config/i3/config") :exit t)
+    ("m" (find-file "~/dotfiles/xmonad/.xmonad/xmonad.hs") :exit t)
     ("s" (find-file "~/.config/i3status-rust/config.toml") :exit t)
     ("c" (find-file "~/.config/") :exit t)
     ("q" nil :exit t))
@@ -940,6 +944,7 @@ before packages are loaded."
           "~/projects/align-BDD"
           "~/projects/br-sorting"
           "~/PKB/notes/website.org"
+          "~/PKB/notes/res-pipeline.org"
           "~/dotfiles"))
 
   (setq org-use-fast-todo-selection t)
@@ -1100,6 +1105,16 @@ before packages are loaded."
   ;; prevent ~undo-tree~ files from appearing everywhere
   (setq undo-tree-history-directory-alist '(("." . "~/.spacemacs.d/undo")))
 
+  ;; beancount for money tracking
+  (add-to-list 'load-path "~/.spacemacs.d/layers/beancount-mode/")
+  (require 'beancount)
+  (add-to-list 'auto-mode-alist '("\\.beancount\\'" . beancount-mode))
+
+  (add-hook 'beancount-mode-hook #'outline-minor-mode)  ;; turn on outlining/folding by default
+  (define-key beancount-mode-map (kbd "C-c C-n") #'outline-next-visible-heading)
+  (define-key beancount-mode-map (kbd "C-c C-p") #'outline-previous-visible-heading)
+
+  ;; keyfreq setup
   (setq keyfreq-file (concat spacemacs-cache-directory "emacs.keyfreq"))
   (keyfreq-mode 1)
   (keyfreq-autosave-mode 1))

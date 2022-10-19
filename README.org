@@ -12,3 +12,4 @@
 - (somewhat) quick web search
 - orgmode: added =ab/jump-to-parent-and-fold= (~H-q~)
   (seems handy when editing large prose/paper in org)
+- beancount for finances / expenses tracking.
