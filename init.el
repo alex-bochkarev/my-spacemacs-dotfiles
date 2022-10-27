@@ -43,7 +43,6 @@ This function should only modify configuration layer settings."
      restructuredtext git javascript
      html
      search-engine
-     ;; gtags
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press `SPC f e R' (Vim style) or
@@ -103,7 +102,7 @@ This function should only modify configuration layer settings."
    ;; `dotspacemacs/user-config'. To use a local version of a package, use the
    ;; `:location' property: '(your-package :location "~/path/to/your-package/")
    ;; Also include the dependencies as they will not be resolved automatically.
-   dotspacemacs-additional-packages '(org-msg keyfreq modus-themes deadgrep)
+   dotspacemacs-additional-packages '(org-msg keyfreq modus-themes deadgrep counsel-etags)
 
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -695,7 +694,7 @@ before packages are loaded."
   (global-set-key (kbd "H-n") 'spacemacs/deft)
 
   ;; dired customizations
-  (setq dired-listing-switches "-lXGh --group-directories-first")
+  (setq dired-listing-switches "-laXGh --group-directories-first")
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; email setup (with mu4e)
@@ -1167,7 +1166,7 @@ before packages are loaded."
   ;; ctags config
   (setq projectile-tags-command "ctags -Re --tag-relative=yes --exclude=@.ctagsignore -f \"%s\" %s .")
   ;; (global-set-key (kbd "H-SPC") 'helm-etags-select)
-  (global-set-key (kbd "H-SPC") 'find-tag)
+  (global-set-key (kbd "H-SPC") 'counsel-etags-list-tag)
 
   ;; minor tweaks for orgmode
   (require 'ox-extra) ;; :ignore: feature
