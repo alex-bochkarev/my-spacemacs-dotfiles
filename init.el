@@ -53,7 +53,8 @@ This function should only modify configuration layer settings."
                       auto-completion-tab-key-behavior nil)
      ;; better-defaults
      emacs-lisp
-     helm
+     ;;helm
+     (ivy :variables ivy-enable-icons t)
      ;; lsp
      ;; markdown
      (markdown :variables markdown-live-preview-engine 'vmd)
@@ -88,6 +89,9 @@ This function should only modify configuration layer settings."
      ess
      ;; latex setup
      latex
+
+     ;; literature notes
+     deft
      treemacs)
 
 
@@ -99,7 +103,7 @@ This function should only modify configuration layer settings."
    ;; `dotspacemacs/user-config'. To use a local version of a package, use the
    ;; `:location' property: '(your-package :location "~/path/to/your-package/")
    ;; Also include the dependencies as they will not be resolved automatically.
-   dotspacemacs-additional-packages '(org-msg keyfreq modus-themes)
+   dotspacemacs-additional-packages '(org-msg keyfreq modus-themes deadgrep)
 
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -625,6 +629,74 @@ before packages are loaded."
   (global-set-key (kbd "H-/") 'org-roam-node-find)
   ;; end of org-roam config
 
+  ;; references and literature notes
+  (setq bibtex-completion-pdf-field "file")
+  (setq bibtex-completion-pdf-open-function 'spacemacs//open-in-external-app)
+
+  (setq ab/lit-notes-dir "~/PKB/notes/refs")
+
+  (defun ab/pre-populate-notes (KEY)
+    "Pre-populates a literature note with some bibtex data."
+    (let ((entry (bibtex-completion-get-entry KEY)))
+      (insert ":PROPERTIES:\n")
+      (insert ":ID: " KEY "-refnote\n")
+      (insert ":END:\n\n")
+      (insert "#+TITLE: (notes) " KEY ": " (bibtex-completion-get-value "title" entry) "\n")
+      (insert "#+SUBTITLE: by " (bibtex-completion-get-value "author" entry) "\n\n")
+      (insert "Source: cite:" KEY)))
+
+  (defun ab/populate-refnote ()
+    (interactive)
+    (ab/pre-populate-notes (read-string "Bibtex key:")))
+
+  (defun ab/edit-lit-notes (KEYS)
+    "Opens the notes associated with (bibtex) KEYS,
+   basically just files in the form of `ab/lit-notes-directory/key.org`"
+    (dolist (KEY KEYS)
+      (let ((file (concat ab/lit-notes-dir "/" KEY ".org"))
+            (entry (bibtex-completion-get-entry KEY)))
+        (if (file-exists-p file)
+            (find-file file)
+          (if (yes-or-no-p
+               (concat file " -- the file does not exist! Create?"))
+              (progn
+                (find-file file)
+                ;; pre-populate the file as possible
+                (ab/pre-populate-notes KEY)))))))
+
+  (setq bibtex-completion-edit-notes-function 'ab/edit-lit-notes)
+
+  ;; deft set up
+  (setq deft-directory ab/lit-notes-dir)
+
+  ;; see https://github.com/jrblevin/deft/issues/75
+  ;; (the last comment)
+  (setq deft-strip-summary-regexp
+        (concat "\\("
+	              "^:.+:.*\n" ; any line with a :SOMETHING:
+	              "\\|^#\\+.*\n" ; anyline starting with a #+
+	              "\\|^\\*.+.*\n" ; anyline where an asterisk starts the line
+	              "\\)"))
+
+  (setq deft-use-filename-as-title nil)
+
+  (advice-add 'deft-parse-title :override
+              (lambda (file contents)
+                (if deft-use-filename-as-title
+	                  (deft-base-filename file)
+	                (let* ((case-fold-search 't)
+	                       (begin (string-match "^#\\+TITLE: \\(?:(notes)\s\\)*" contents))
+	                       (end-of-begin (match-end 0))
+	                       (end (string-match "\n" contents begin)))
+	                  (if begin
+	                      (substring contents end-of-begin end)
+	                    (format "%s" file))))))
+
+  (global-set-key (kbd "H-n") 'spacemacs/deft)
+
+  ;; dired customizations
+  (setq dired-listing-switches "-lXGh --group-directories-first")
+
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; email setup (with mu4e)
   (with-eval-after-load 'mu4e
@@ -1084,17 +1156,18 @@ before packages are loaded."
     (evil-define-key '(insert) julia-mode-map (kbd "H-'") 'spacemacs/ab|julia-insert-symbol-transient-state/body)
   ;; <<< end of julia-specific customizations
 
-  ;; use ripgrep instead of grep (way faster!)
-  ;; borrowed from https://gist.github.com/pesterhazy/fabd629fbb89a6cd3d3b92246ff29779
-  (evil-leader/set-key "/" 'spacemacs/helm-project-do-ag)
-  (setq helm-ag-base-command "rg --vimgrep --no-heading --smart-case")
+  ;; using a special ripgrep interface
+  (evil-leader/set-key "/" 'deadgrep)
+
+  ;; (setq helm-ag-base-command "rg --vimgrep --no-heading --smart-case")
 
   (setq yas-snippet-dirs (append yas-snippet-dirs
                                  '("~/.spacemacs.d/snippets"))) ;; append with a personal snippets collection
 
   ;; ctags config
   (setq projectile-tags-command "ctags -Re --tag-relative=yes --exclude=@.ctagsignore -f \"%s\" %s .")
-  (global-set-key (kbd "H-SPC") 'helm-etags-select)
+  ;; (global-set-key (kbd "H-SPC") 'helm-etags-select)
+  (global-set-key (kbd "H-SPC") 'find-tag)
 
   ;; minor tweaks for orgmode
   (require 'ox-extra) ;; :ignore: feature

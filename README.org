@@ -13,3 +13,5 @@
 - orgmode: added =ab/jump-to-parent-and-fold= (~H-q~)
   (seems handy when editing large prose/paper in org)
 - beancount for finances / expenses tracking.
+- switched helm for ivy, added =deadgrep=
+- added a few functions for opening PDFs (with default app) and literature notes
