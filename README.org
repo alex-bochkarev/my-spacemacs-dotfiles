@@ -4,6 +4,7 @@
 *Key things:*
 - customized orgmode, capture, and agenda
 - org-roam, org-roam-protocol
+- a simple project notes system on top of org-roam
 - some personal snippets (yas)
 - mu4e and org-msg (fixed with ver. 1.8 / new path from =mailutis=)
 - python with tests (pytest) + ipython

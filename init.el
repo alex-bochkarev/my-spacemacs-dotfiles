@@ -933,9 +933,11 @@ before packages are loaded."
   (spacemacs|define-transient-state ab|goto-special-file
     :title "Go to a 'special' project-specific file."
     :doc
-    "\n [_t_] TODOs list [_c_] change log [_r_/_R_] README{.org/.md} \n [_i_] .gitignore [_T_] .ctagsignore [_m_] Makefile [_s_] setup.el\n [_q_] quit"
+    "\n [_f_] Project org folder [_o_] Project main orgfile [_T_] TODOs list (repo) [_c_] change log [_r_/_R_] README{.org/.md} \n [_i_] .gitignore [_T_] .ctagsignore [_m_] Makefile [_s_] setup.el\n [_q_] quit"
     :bindings
-    ("t" org-projectile/goto-todos :exit t)
+    ("f" (find-file (concat pkb-project-notes-dir (projectile-project-name))) :exit t)
+    ("o" (find-file (concat pkb-project-notes-dir (projectile-project-name) "/" pkb-project-note-file)) :exit t)
+    ("T" org-projectile/goto-todos :exit t)
     ("c" (find-file (concat (projectile-project-root) "CHANGELOG.org")) :exit t)
     ("R" (find-file (concat (projectile-project-root) "README.md")) :exit t)
     ("r" (find-file (concat (projectile-project-root) "README.org")) :exit t)
@@ -1007,6 +1009,14 @@ before packages are loaded."
   (setq org-daily-summary-file "~/org/summaries.org.gpg")
   (setq org-mobile-file "~/Dropbox/orgzly/mobile-refile.org")
 
+  ;; project-management related filenames
+  (setq pkb-project-note-file "project.org")
+  (setq pkb-project-log-file "log.org")
+  (setq pkb-project-notation-file "notation.org")
+
+  ;; key folders / directories (with a trailing slash)
+  (setq pkb-project-notes-dir "~/PKB/notes/projects/")
+
   ;; agenda set up
   (setq org-agenda-files
         '("~/org"
@@ -1017,6 +1027,7 @@ before packages are loaded."
           "~/projects/br-sorting"
           "~/PKB/notes/website.org"
           "~/PKB/notes/res-pipeline.org"
+          "~/PKB/notes/projects"
           "~/dotfiles"))
 
   (setq org-use-fast-todo-selection t)
@@ -1094,17 +1105,28 @@ before packages are loaded."
   ;; capture templates
   (setq org-capture-templates
         (quote (
-                ("p" "=== Project-specific templates === ")
-                ("pt" "New TODO (project-specific)" entry (file+headline (lambda () (concat (projectile-project-root)  org-projectile-per-project-filepath)) "Current project TODOs")
+                ("r" "=== Repo-specific templates === ")
+                ("rt" "New TODO (repo-specific)" entry (file+headline (lambda () (concat (projectile-project-root)  org-projectile-per-project-filepath)) "Current project TODOs")
                  "* TODO %?\n%U\n%a\n" :prepend t)
-                ("pc" "Changelog entry (project-specific)" entry(file+headline (lambda () (concat (projectile-project-root) "CHANGELOG.org")) "Running changelog")
+                ("rc" "Changelog entry (repo-specific)" entry(file+headline (lambda () (concat (projectile-project-root) "CHANGELOG.org")) "Running changelog")
                  "* %U: %? \n%a\n" :prepend t)
-                ;; ("n" "Notation note (project-specific)" item (file+headline (lambda () (concat (projectile-project-root)  "notation.org")) "Table of symbols (notation)")
-                 ;; "- %?\n")
-                ("pn" "General note / assumptions / etc (project-specific)" entry (file+headline (lambda () (concat (projectile-project-root)  org-projectile-per-project-filepath)) "Notes")
+                ("rn" "General note / assumptions / etc (repo-specific)" entry (file+headline (lambda () (concat (projectile-project-root)  org-projectile-per-project-filepath)) "Notes")
                  "* %?\n%U\n%a\n" :prepend t)
-                ("pf" "Further work note (project-specific)" entry (file+headline (lambda () (concat (projectile-project-root)  "further.org")) "Notes")
+                ("rf" "Further note / TODOs" entry (file+headline (lambda () (concat (projectile-project-root)  org-projectile-per-project-filepath)) "Further")
                  "* %?\n%U\n%a\n" :prepend t)
+
+                ("p" "=== Project-specific templates (PKB/notes) === ")
+                ("pt" "New TODO (project-specific)" entry (file+headline (lambda () (concat pkb-project-notes-dir (projectile-project-name) "/" pkb-project-note-file)) "Current project TODOs")
+                 "* TODO %?\n%U\n%a\n" :prepend t)
+                 ("pl" "Project Log entry" entry(file+headline (lambda () (concat  pkb-project-notes-dir (projectile-project-name) "/" pkb-project-log-file)) "Running results")
+                 "* %U: %? \n%a\n" :prepend t)
+                 ("pN" "Notation note (project-specific)" item (file+headline (lambda () (concat  pkb-project-notes-dir (projectile-project-name) "/" pkb-project-notation-file)) "Table of symbols (notation)")
+                  "- %?\n")
+                 ("pn" "General note / assumptions / etc (project-specific)" entry (file+headline (lambda () (concat pkb-project-notes-dir (projectile-project-name) "/" pkb-project-note-file)) "Notes")
+                 "* %?\n%U\n%a\n" :prepend t)
+                 ("pf" "Further research note (project-specific)" entry (file+headline (lambda () (concat pkb-project-notes-dir (projectile-project-name) "/" pkb-project-note-file)) "Further research and TODOs")
+                  "* %?\n%U\n%a\n" :prepend t)
+
                 ("t" "Current TODO (current.org)" entry (file+headline org-current-file "Daily inbox")
                  "* TODO %? \n%a\n" :prepend t)
                 ("n" "Current/fleeting note (current.org)" entry (file+headline org-current-file "Daily inbox")
@@ -1118,7 +1140,7 @@ before packages are loaded."
                  "* %?\n%U\n")
                 ("d" "A distraction!" entry (file org-distractions-file)
                  "* %?\n Link: %a\n Captured: %U\n")
-                ("r" "Daily result" entry (file+olp org-current-file "Daily inbox" "Results")
+                ("R" "Daily result" entry (file+olp org-current-file "Daily inbox" "Results")
                  "* %? \n%a\n%U\n" :prepend t)
                 ("k" "Things to do with kids" entry (file+olp org-current-file "Kids" "Activity")
                  "* %? \n%a\n%U\n" :prepend t))))
