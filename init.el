@@ -935,8 +935,8 @@ before packages are loaded."
     :doc
     "\n [_f_] Project org folder [_o_] Project main orgfile [_T_] TODOs list (repo) [_c_] change log [_r_/_R_] README{.org/.md} \n [_i_] .gitignore [_T_] .ctagsignore [_m_] Makefile [_s_] setup.el\n [_q_] quit"
     :bindings
-    ("f" (find-file (concat pkb-project-notes-dir (projectile-project-name))) :exit t)
-    ("o" (find-file (concat pkb-project-notes-dir (projectile-project-name) "/" pkb-project-note-file)) :exit t)
+    ("f" (find-file (ab/get-project-notes-dir)) :exit t)
+    ("o" (find-file (concat (ab/get-project-notes-dir) pkb-project-note-file)) :exit t)
     ("T" org-projectile/goto-todos :exit t)
     ("c" (find-file (concat (projectile-project-root) "CHANGELOG.org")) :exit t)
     ("R" (find-file (concat (projectile-project-root) "README.md")) :exit t)
@@ -1015,7 +1015,15 @@ before packages are loaded."
   (setq pkb-project-notation-file "notation.org")
 
   ;; key folders / directories (with a trailing slash)
-  (setq pkb-project-notes-dir "~/PKB/notes/projects/")
+  (setq pkb-project-notes-root "~/PKB/notes/projects")
+
+  (defun ab/get-project-notes-dir ()
+    "Returns project notes directory if it is defined as a dir-local,
+     or uses the project name from projectile otherwise."
+
+    (if (bound-and-true-p pkb-project-notes-dir)
+        (concat pkb-project-notes-root "/" pkb-project-notes-dir "/")
+      (concat pkb-project-notes-root "/" (projectile-project-name) "/")))
 
   ;; agenda set up
   (setq org-agenda-files
@@ -1228,6 +1236,11 @@ This function is called at the very end of Spacemacs initialization."
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    '(yaml-mode toml-mode ron-mode racer rust-mode flycheck-rust cargo csv-mode company-reftex company-math math-symbol-lists company-auctex auctex-latexmk auctex graphviz-dot-mode yapfify stickyfunc-enhance sphinx-doc pytest pyenv-mode pydoc py-isort poetry transient pippel pipenv pyvenv pip-requirements nose lsp-python-ms lsp-pyright live-py-mode importmagic epc ctable concurrent deferred helm-pydoc helm-cscope xcscope cython-mode company-anaconda blacken anaconda-mode pythonic tern npm-mode nodejs-repl livid-mode skewer-mode js2-refactor multiple-cursors js2-mode js-doc import-js grizzl helm-gtags ggtags dap-mode lsp-treemacs bui lsp-mode markdown-mode counsel-gtags yasnippet web-mode web-beautify tagedit slim-mode scss-mode sass-mode pug-mode prettier-js impatient-mode simple-httpd helm-css-scss haml-mode emmet-mode counsel-css counsel swiper ivy company-web web-completion-data company add-node-modules-path ws-butler writeroom-mode winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package undo-tree treemacs-projectile treemacs-persp treemacs-icons-dired treemacs-evil toc-org symon symbol-overlay string-inflection string-edit spaceline-all-the-icons restart-emacs request rainbow-delimiters quickrun popwin pcre2el password-generator paradox ox-hugo ox-gfm overseer org-superstar org-rich-yank org-projectile org-present org-pomodoro org-msg org-mime org-download org-contrib org-cliplink open-junk-file nameless multi-line mu4e-maildirs-extension mu4e-alert macrostep lorem-ipsum link-hint keyfreq inspector info+ indent-guide hybrid-mode hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-xref helm-themes helm-swoop helm-purpose helm-projectile helm-org-rifle helm-org helm-mu helm-mode-manager helm-make helm-ls-git helm-flx helm-descbinds helm-ag google-translate golden-ratio gnuplot font-lock+ flyspell-correct-helm flycheck-pos-tip flycheck-package flycheck-elsa flx-ido fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-easymotion evil-collection evil-cleverparens evil-args evil-anzu eval-sexp-fu emr elisp-slime-nav editorconfig dumb-jump drag-stuff dotenv-mode dired-quick-sort diminish define-word column-enforce-mode clean-aindent-mode centered-cursor-mode auto-highlight-symbol auto-dictionary auto-compile aggressive-indent ace-link ace-jump-helm-line))
+ '(safe-local-variable-values
+   '((pkb-project-notes-dir . "align-BDD")
+     (javascript-backend . tide)
+     (javascript-backend . tern)
+     (javascript-backend . lsp)))
  '(warning-suppress-types '((comp))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
