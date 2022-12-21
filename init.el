@@ -933,11 +933,11 @@ before packages are loaded."
   (spacemacs|define-transient-state ab|goto-special-file
     :title "Go to a 'special' project-specific file."
     :doc
-    "\n [_f_] Project org folder [_o_] Project main orgfile [_T_] TODOs list (repo) [_c_] change log [_r_/_R_] README{.org/.md} \n [_i_] .gitignore [_T_] .ctagsignore [_m_] Makefile [_s_] setup.el\n [_q_] quit"
+    "\n [_f_] Project org folder [_o_] Project main orgfile [_t_] TODOs list (repo) [_c_] change log [_r_/_R_] README{.org/.md} \n [_i_] .gitignore [_T_] .ctagsignore [_m_] Makefile [_s_] setup.el\n [_q_] quit"
     :bindings
     ("f" (find-file (ab/get-project-notes-dir)) :exit t)
     ("o" (find-file (concat (ab/get-project-notes-dir) pkb-project-note-file)) :exit t)
-    ("T" org-projectile/goto-todos :exit t)
+    ("t" org-projectile/goto-todos :exit t)
     ("c" (find-file (concat (projectile-project-root) "CHANGELOG.org")) :exit t)
     ("R" (find-file (concat (projectile-project-root) "README.md")) :exit t)
     ("r" (find-file (concat (projectile-project-root) "README.org")) :exit t)
