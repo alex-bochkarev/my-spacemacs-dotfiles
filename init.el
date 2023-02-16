@@ -32,7 +32,16 @@ This function should only modify configuration layer settings."
 
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(yaml
+   '(
+     ;; org-related setup
+     (org :variables
+          org-enable-github-support t
+          org-projectile-file "TODOs.org"
+          org-enable-roam-support t
+          org-enable-roam-server t
+          org-enable-roam-protocol t
+          org-enable-hugo-support t)
+     yaml
      haskell
      octave
      rust ;; note: needed for Hugo / editing TOML files
@@ -72,19 +81,11 @@ This function should only modify configuration layer settings."
 
      ranger
 
-     ;; org-related setup
-     (org :variables
-          org-enable-github-support t
-          org-projectile-file "TODOs.org"
-          org-enable-roam-support t
-          org-enable-roam-server t
-          org-enable-roam-protocol t
-          org-enable-hugo-support t)
      bibtex
 
      ;; mail setup
      (mu4e :variables
-           mu4e-installation-path "/usr/share/emacs/site-lisp/elpa/mu4e-1.8.10")
+           mu4e-installation-path "/usr/share/emacs/site-lisp/elpa/mu4e-1.8.14")
 
      ess
      ;; latex setup
@@ -103,7 +104,7 @@ This function should only modify configuration layer settings."
    ;; `dotspacemacs/user-config'. To use a local version of a package, use the
    ;; `:location' property: '(your-package :location "~/path/to/your-package/")
    ;; Also include the dependencies as they will not be resolved automatically.
-   dotspacemacs-additional-packages '(org-msg keyfreq modus-themes deadgrep counsel-etags)
+   dotspacemacs-additional-packages '(org-msg keyfreq modus-themes deadgrep counsel-etags atomic-chrome)
 
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -718,6 +719,7 @@ before packages are loaded."
     (setq mu4e-maildir-shortcuts
           '(("/CU/INBOX" . ?c)
             ("/personal/INBOX" . ?p)
+            ("/RPTU/INBOX" . ?w)
             ("/personal/lists" . ?l)
             ("/legacy/INBOX" . ?g)))
 
@@ -806,7 +808,44 @@ before packages are loaded."
 	                      (smtpmail-debug-info . t)
 	                      (smtpmail-debug-verbose . t)
                         ))
-,(make-mu4e-context
+             ,(make-mu4e-context
+	             :name "Work"
+	             :enter-func (lambda () (mu4e-message "Switch to the RPTU context"))
+               :leave-func (lambda () (mu4e-message "Leaving RPTU context"))
+	             ;; no leave-func
+	             ;; we match based on the maildir of the message
+	             ;; this matches maildir ... and its sub-directories
+	             :match-func (lambda (msg)
+			                       (when msg
+			                         (string-match-p "^/RPTU" (mu4e-message-field msg :maildir))))
+	             :vars '( ( user-mail-address	     . "a.bochkarev@rptu.de" )
+		                    ( user-full-name	     . "Alexey Bochkarev" )
+		                    ( mu4e-compose-signature  .
+		                      (concat
+		                       "Alexey Bochkarev\n"
+                           "Postdoc @ RPTU Kaiserslautern-Landau :: AG Optimierung,\n"
+                           "tel: +49 (0)631 205 3925\n"
+                           "https://www.bochkarev.io\n"
+		                       "telegram: @abochka\n"))
+                        ;; set up maildir folders
+                        (mu4e-sent-folder . "/RPTU/Sent")
+	                      (mu4e-drafts-folder . "/RPTU/Drafts")
+	                      (mu4e-trash-folder . "/RPTU/Trash")
+                        (mu4e-refile-folder . "/RPTU/Archive")
+                        ;; sending mail preferences
+                        (mu4e-sent-messages-behavior . delete)
+                        (smtpmail-queue-dir . "~/.mail/RPTU/queue/cur")
+	                      (message-send-mail-function . smtpmail-send-it)
+	                      (smtpmail-smtp-user . "a.bochkarev@rptu.de")
+	                      (smtpmail-starttls-credentials . (("smtp.uni-kl.de" 587 nil nil)))
+	                      (smtpmail-auth-credentials . (expand-file-name "~/.authinfo.gpg"))
+	                      (smtpmail-default-smtp-server . "smtp.uni-kl.de")
+	                      (smtpmail-smtp-server . "smtp.uni-kl.de")
+	                      (smtpmail-smtp-service . 587)
+	                      (smtpmail-debug-info . t)
+	                      (smtpmail-debug-verbose . t)
+                        ))
+             ,(make-mu4e-context
 	             :name "legacy"
 	             :enter-func (lambda () (mu4e-message "Switch to the legacy gmail context"))
                :leave-func (lambda () (mu4e-message "Leaving legacy gmail context"))
@@ -1192,7 +1231,8 @@ before packages are loaded."
   ;; (setq helm-ag-base-command "rg --vimgrep --no-heading --smart-case")
 
   (setq yas-snippet-dirs (append yas-snippet-dirs
-                                 '("~/.spacemacs.d/snippets"))) ;; append with a personal snippets collection
+                                 '("~/.spacemacs.d/snippets")
+                                 '("~/.spacemacs.d/snippets-private"))) ;; append with a personal snippets collection
 
   ;; ctags config
   (setq projectile-tags-command "ctags -Re --tag-relative=yes --exclude=@.ctagsignore -f \"%s\" %s .")
@@ -1217,6 +1257,9 @@ before packages are loaded."
   (define-key beancount-mode-map (kbd "C-c C-n") #'outline-next-visible-heading)
   (define-key beancount-mode-map (kbd "C-c C-p") #'outline-previous-visible-heading)
 
+  ;; start atomic chrome server
+  (atomic-chrome-start-server)
+
   ;; keyfreq setup
   (setq keyfreq-file (concat spacemacs-cache-directory "emacs.keyfreq"))
   (keyfreq-mode 1)
@@ -1237,7 +1280,8 @@ This function is called at the very end of Spacemacs initialization."
  '(package-selected-packages
    '(yaml-mode toml-mode ron-mode racer rust-mode flycheck-rust cargo csv-mode company-reftex company-math math-symbol-lists company-auctex auctex-latexmk auctex graphviz-dot-mode yapfify stickyfunc-enhance sphinx-doc pytest pyenv-mode pydoc py-isort poetry transient pippel pipenv pyvenv pip-requirements nose lsp-python-ms lsp-pyright live-py-mode importmagic epc ctable concurrent deferred helm-pydoc helm-cscope xcscope cython-mode company-anaconda blacken anaconda-mode pythonic tern npm-mode nodejs-repl livid-mode skewer-mode js2-refactor multiple-cursors js2-mode js-doc import-js grizzl helm-gtags ggtags dap-mode lsp-treemacs bui lsp-mode markdown-mode counsel-gtags yasnippet web-mode web-beautify tagedit slim-mode scss-mode sass-mode pug-mode prettier-js impatient-mode simple-httpd helm-css-scss haml-mode emmet-mode counsel-css counsel swiper ivy company-web web-completion-data company add-node-modules-path ws-butler writeroom-mode winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package undo-tree treemacs-projectile treemacs-persp treemacs-icons-dired treemacs-evil toc-org symon symbol-overlay string-inflection string-edit spaceline-all-the-icons restart-emacs request rainbow-delimiters quickrun popwin pcre2el password-generator paradox ox-hugo ox-gfm overseer org-superstar org-rich-yank org-projectile org-present org-pomodoro org-msg org-mime org-download org-contrib org-cliplink open-junk-file nameless multi-line mu4e-maildirs-extension mu4e-alert macrostep lorem-ipsum link-hint keyfreq inspector info+ indent-guide hybrid-mode hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-xref helm-themes helm-swoop helm-purpose helm-projectile helm-org-rifle helm-org helm-mu helm-mode-manager helm-make helm-ls-git helm-flx helm-descbinds helm-ag google-translate golden-ratio gnuplot font-lock+ flyspell-correct-helm flycheck-pos-tip flycheck-package flycheck-elsa flx-ido fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-easymotion evil-collection evil-cleverparens evil-args evil-anzu eval-sexp-fu emr elisp-slime-nav editorconfig dumb-jump drag-stuff dotenv-mode dired-quick-sort diminish define-word column-enforce-mode clean-aindent-mode centered-cursor-mode auto-highlight-symbol auto-dictionary auto-compile aggressive-indent ace-link ace-jump-helm-line))
  '(safe-local-variable-values
-   '((pkb-project-notes-dir . "align-BDD")
+   '((eval add-hook 'after-save-hook 'org-html-export-to-html t t)
+     (pkb-project-notes-dir . "align-BDD")
      (javascript-backend . tide)
      (javascript-backend . tern)
      (javascript-backend . lsp)))
