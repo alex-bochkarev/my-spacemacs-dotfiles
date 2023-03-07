@@ -63,15 +63,9 @@ This function should only modify configuration layer settings."
                       auto-completion-tab-key-behavior nil)
      ;; better-defaults
      emacs-lisp
-     ;;helm
      (ivy :variables ivy-enable-icons t)
      ;; lsp
-     ;; markdown
      (markdown :variables markdown-live-preview-engine 'vmd)
-     ;; multiple-cursors
-     ;; (shell :variables
-     ;;        shell-default-height 30
-     ;;        shell-default-position 'bottom)
      spell-checking
      syntax-checking
      version-control
@@ -86,7 +80,7 @@ This function should only modify configuration layer settings."
 
      ;; mail setup
      (mu4e :variables
-           mu4e-installation-path "/usr/share/emacs/site-lisp/elpa/mu4e-1.8.14")
+           mu4e-installation-path "~/.local/share/emacs/site-lisp/mu4e")
 
      ess
      ;; latex setup
@@ -254,7 +248,7 @@ It should only modify the values of Spacemacs settings."
    ;; Default major mode for a new empty buffer. Possible values are mode
    ;; names such as `text-mode'; and `nil' to use Fundamental mode.
    ;; (default `text-mode')
-   dotspacemacs-new-empty-buffer-major-mode 'text-mode
+   dotspacemacs-new-empty-buffer-major-mode 'org-mode
 
    ;; Default major mode of the scratch buffer (default `text-mode')
    dotspacemacs-scratch-mode 'text-mode
@@ -274,7 +268,7 @@ It should only modify the values of Spacemacs settings."
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press `SPC T n' to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(doom-nord modus-operandi modus-vivendi)
+   dotspacemacs-themes '(doom-solarized-light doom-solarized-dark modus-operandi modus-vivendi)
 
    ;; Set the theme for the Spaceline. Supported themes are `spacemacs',
    ;; `all-the-icons', `custom', `doom', `vim-powerline' and `vanilla'. The
@@ -621,8 +615,8 @@ before packages are loaded."
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; bibtex config
-  (setq bibtex-completion-bibliography '("~/Dropbox/bibliography/references.bib"))
-  (setq my-bib "~/Dropbox/bibliography/references.bib")  ;; for 'bib' template
+  (setq bibtex-completion-bibliography '("~/PKB/sources/references.bib"))
+  (setq my-bib "~/PKB/sources/references.bib")  ;; for 'bib' template
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; org-roam config
   (setq org-roam-directory (file-truename "~/PKB/notes"))
@@ -883,7 +877,7 @@ before packages are loaded."
                         ))
              )))
 
-  (setq mu4e-compose-context-policy 'ask-if-none) ;; that's default, I guess
+  ;; (setq mu4e-compose-context-policy 'ask-if-none) ;; that's default, I guess
 
   ;; the story with trashing
   ;; see https://github.com/djcb/mu/issues/1136
@@ -927,7 +921,7 @@ before packages are loaded."
   (setq smtpmail-queue-mail nil)  ;; start in normal mode
 
   (setq org-mu4e-convert-to-html t)
-  (setq mu4e-view-show-addresses 't)
+  (setq mu4e-view-show-addresses t)
 
   (setq message-kill-buffer-on-exit t)
   (setq mu4e-compose-dont-reply-to-self t)
@@ -965,7 +959,7 @@ before packages are loaded."
   (add-hook 'dired-mode-hook 'turn-on-gnus-dired-mode)
 
   ;; after that, mark the file(s) in dired and ~C-c~ ~RET~ ~C-a~
-  ;; (will ask whether to attach to an existing, or a new message
+  ;; (will ask whether to attach to an existing, or a new message)
 
   ;;end of email config (mu4e) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -993,18 +987,19 @@ before packages are loaded."
   (spacemacs|define-transient-state ab|goto-file
     :title "Special 'locations': Goto-menu."
     :doc
-    "\n [_g_] Current org-file [_r_] Reading list [_d_] Distracted [_m_] mobile inbox [_j_] Job search [_S_] Shopping list\n [_w_] website notes [_s_] startpage [_p_] projects folder [_l_] ledger file [_q_] quit"
+    "\n [_g_] Current org-file [_r_] Reading list [_d_] Distracted [_m_] mobile inbox [_n_] Notes folder [_S_] Shopping list\n [_w_] website notes [_s_] startpage [_p_] projects folder [_l_] ledger file [_o_] org folder [_q_] quit"
     :bindings
     ("g" (find-file org-current-file) :exit t)
     ("r" (find-file org-readme-file) :exit t)
     ("d" (find-file org-distractions-file) :exit t)
     ("m" (find-file org-mobile-file) :exit t)
-    ("j" (find-file "~/org/js2021.org") :exit t)
+    ("n" (find-file "~/PKB/notes/proj-notes") :exit t)
     ("w" (find-file "~/PKB/notes/website.org") :exit t)
     ("S" (find-file "~/org/shopping.org") :exit t)
     ("s" (find-file "~/projects/startpage/start.html") :exit t)
     ("l" (find-file "~/finance/ledger.beancount") :exit t)
     ("p" (find-file "~/projects/") :exit t)
+    ("o" (find-file "~/org/") :exit t)
     ("q" nil :exit t))
 
   (global-set-key (kbd "H-g") 'spacemacs/ab|goto-file-transient-state/body)
@@ -1045,6 +1040,7 @@ before packages are loaded."
   (setq org-quotes-file "~/org/quotes.org")
   (setq org-distractions-file "~/org/fun.org")
   (setq org-current-file "~/org/current.org")
+  (setq org-someday-file "~/org/someday.org")
   (setq org-blog-file "~/PKB/notes/blog.org")
   (setq org-daily-summary-file "~/org/summaries.org.gpg")
   (setq org-mobile-file "~/Dropbox/orgzly/mobile-refile.org")
@@ -1055,7 +1051,7 @@ before packages are loaded."
   (setq pkb-project-notation-file "notation.org")
 
   ;; key folders / directories (with a trailing slash)
-  (setq pkb-project-notes-root "~/PKB/notes/projects")
+  (setq pkb-project-notes-root "~/PKB/notes/proj-notes")
 
   (defun ab/get-project-notes-dir ()
     "Returns project notes directory if it is defined as a dir-local,
@@ -1068,15 +1064,11 @@ before packages are loaded."
   ;; agenda set up
   (setq org-agenda-files
         '("~/org"
-          "~/projects/DSPI"
-          "~/projects/BDDs"
-          "~/projects/DSPI-MCTS-paper"
-          "~/projects/align-BDD"
           "~/projects/br-sorting"
           "~/PKB/notes/website.org"
           "~/PKB/notes/res-pipeline.org"
-          "~/PKB/notes/projects"
-          "~/dotfiles"))
+          "~/PKB/notes/proj-notes"
+          "~/.dotfiles"))
 
   (setq org-use-fast-todo-selection t)
 
@@ -1177,6 +1169,11 @@ before packages are loaded."
 
                 ("t" "Current TODO (current.org)" entry (file+headline org-current-file "Daily inbox")
                  "* TODO %? \n%a\n" :prepend t)
+                ("s" "=== Someday TODOs (someday.org) ============== ")
+                ("sw" "Weekend TODO" entry (file+headline org-someday-file "Weekend")
+                 "* TODO %? \n" :prepend t)
+                ("ss" "Someday TODO" entry (file+headline org-someday-file "Someday")
+                 "* TODO %? \n" :prepend t)
                 ("n" "Current/fleeting note (current.org)" entry (file+headline org-current-file "Daily inbox")
                  "* %? \n%a\n" :prepend t)
                 ("b" "========== [b] Bookmarks / readme notes====================")
@@ -1278,6 +1275,8 @@ This function is called at the very end of Spacemacs initialization."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(org-agenda-files
+   '("~/org/network.org" "/home/bochkare/org/current.org" "/home/bochkare/org/day_summary.org" "/home/bochkare/org/fun.org" "/home/bochkare/org/ideas.org" "/home/bochkare/org/js2021.org" "/home/bochkare/org/quotes.org" "/home/bochkare/org/readme.org" "/home/bochkare/org/shopping.org" "/home/bochkare/org/someday.org" "/home/bochkare/PKB/notes/website.org" "/home/bochkare/PKB/notes/res-pipeline.org" "/home/bochkare/.dotfiles/README.org" "/home/bochkare/.dotfiles/TODOs.org"))
  '(package-selected-packages
    '(yaml-mode toml-mode ron-mode racer rust-mode flycheck-rust cargo csv-mode company-reftex company-math math-symbol-lists company-auctex auctex-latexmk auctex graphviz-dot-mode yapfify stickyfunc-enhance sphinx-doc pytest pyenv-mode pydoc py-isort poetry transient pippel pipenv pyvenv pip-requirements nose lsp-python-ms lsp-pyright live-py-mode importmagic epc ctable concurrent deferred helm-pydoc helm-cscope xcscope cython-mode company-anaconda blacken anaconda-mode pythonic tern npm-mode nodejs-repl livid-mode skewer-mode js2-refactor multiple-cursors js2-mode js-doc import-js grizzl helm-gtags ggtags dap-mode lsp-treemacs bui lsp-mode markdown-mode counsel-gtags yasnippet web-mode web-beautify tagedit slim-mode scss-mode sass-mode pug-mode prettier-js impatient-mode simple-httpd helm-css-scss haml-mode emmet-mode counsel-css counsel swiper ivy company-web web-completion-data company add-node-modules-path ws-butler writeroom-mode winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package undo-tree treemacs-projectile treemacs-persp treemacs-icons-dired treemacs-evil toc-org symon symbol-overlay string-inflection string-edit spaceline-all-the-icons restart-emacs request rainbow-delimiters quickrun popwin pcre2el password-generator paradox ox-hugo ox-gfm overseer org-superstar org-rich-yank org-projectile org-present org-pomodoro org-msg org-mime org-download org-contrib org-cliplink open-junk-file nameless multi-line mu4e-maildirs-extension mu4e-alert macrostep lorem-ipsum link-hint keyfreq inspector info+ indent-guide hybrid-mode hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-xref helm-themes helm-swoop helm-purpose helm-projectile helm-org-rifle helm-org helm-mu helm-mode-manager helm-make helm-ls-git helm-flx helm-descbinds helm-ag google-translate golden-ratio gnuplot font-lock+ flyspell-correct-helm flycheck-pos-tip flycheck-package flycheck-elsa flx-ido fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-easymotion evil-collection evil-cleverparens evil-args evil-anzu eval-sexp-fu emr elisp-slime-nav editorconfig dumb-jump drag-stuff dotenv-mode dired-quick-sort diminish define-word column-enforce-mode clean-aindent-mode centered-cursor-mode auto-highlight-symbol auto-dictionary auto-compile aggressive-indent ace-link ace-jump-helm-line))
  '(safe-local-variable-values
