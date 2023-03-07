@@ -7,6 +7,7 @@
 *** [[http://pubsonline.informs.org/action/showFeed?type=etoc&feed=rss&jc=opre][OPRE -- Operations Research]]
 *** [[http://rss.sciencedirect.com/publication/science/03772217][EJOR]]
 *** [[http://rss.sciencedirect.com/publication/science/15725286][Discrete Optimization]]
+*** [[https://onlinelibrary.wiley.com/feed/10970037/most-recent][Networks]]
 ** OR blogs :OR:blog:
 *** [[https://punkrockor.com/feed/][PunkRockOR]]
 *** [[http://11011110.livejournal.com/data/rss][Marco Luebbecke]]
@@ -16,3 +17,10 @@
 *** [[http://probonoor.blogspot.com/feeds/posts/default][ProBono OR]]
 ** Non-OR blogs :blog:general:
 *** [[https://two-wrongs.com/feed.xml][TwoWrongs]]
+**** Emacs blogs :emacs:
+***** [[https://www.masteringemacs.org/feed][Mastering Emacs]]
+***** [[https://sachachua.com/blog/feed/][Sacha Chua]]
+***** [[https://irreal.org/blog/?feed=rss2][Irreal]]
+***** [[https://blog.tecosaur.com/tmio/rss.xml][TMIO]]
+***** [[https://batsov.com/atom.xml][Batsov]]
+***** [[https://karl-voit.at/feeds/lazyblorg-all.atom_1.0.links-only.xml][Karl Voit]]

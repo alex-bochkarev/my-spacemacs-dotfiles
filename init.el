@@ -41,6 +41,7 @@ This function should only modify configuration layer settings."
           org-enable-roam-server t
           org-enable-roam-protocol t
           org-enable-hugo-support t)
+     (elfeed :variables rmh-elfeed-org-files (list "~/.spacemacs.d/elfeed.org"))
      yaml
      haskell
      octave

@@ -2,3 +2,4 @@ distribs
 undo
 layers/local
 snippets-private/
+.spacemacs.env

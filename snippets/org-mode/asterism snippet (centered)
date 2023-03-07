@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: asterism snippet (centered)
+# key: ***
+# --
+@@html: <center>⁂</center>@@
