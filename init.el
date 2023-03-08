@@ -828,7 +828,7 @@ before packages are loaded."
 	                      (mu4e-trash-folder . "/RPTU/Trash")
                         (mu4e-refile-folder . "/RPTU/Archive")
                         ;; sending mail preferences
-                        (mu4e-sent-messages-behavior . delete)
+                        (mu4e-sent-messages-behavior . sent)
                         (smtpmail-queue-dir . "~/.mail/RPTU/queue/cur")
 	                      (message-send-mail-function . smtpmail-send-it)
 	                      (smtpmail-smtp-user . "a.bochkarev@rptu.de")
