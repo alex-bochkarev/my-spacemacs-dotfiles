@@ -964,21 +964,28 @@ before packages are loaded."
   ;;end of email config (mu4e) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
   ;; special places config >>>
+  (defun ab/save-and-jump (DEST)
+    "Pushes the current position to the mark ring and jumps to the specified
+location by calling `find-file' on `DEST')"
+    (interactive)
+    (push-mark nil nil nil)
+    (find-file DEST))
+
   (spacemacs|define-transient-state ab|goto-special-file
     :title "Go to a 'special' project-specific file."
     :doc
     "\n [_f_] Project org folder [_o_] Project main orgfile [_t_] TODOs list (repo) [_c_] change log [_r_/_R_] README{.org/.md} \n [_i_] .gitignore [_T_] .ctagsignore [_m_] Makefile [_s_] setup.el\n [_q_] quit"
     :bindings
-    ("f" (find-file (ab/get-project-notes-dir)) :exit t)
-    ("o" (find-file (concat (ab/get-project-notes-dir) pkb-project-note-file)) :exit t)
+    ("f" (ab/save-and-jump (ab/get-project-notes-dir)) :exit t)
+    ("o" (ab/save-and-jump (concat (ab/get-project-notes-dir) pkb-project-note-file)) :exit t)
     ("t" org-projectile/goto-todos :exit t)
-    ("c" (find-file (concat (projectile-project-root) "CHANGELOG.org")) :exit t)
-    ("R" (find-file (concat (projectile-project-root) "README.md")) :exit t)
-    ("r" (find-file (concat (projectile-project-root) "README.org")) :exit t)
-    ("i" (find-file (concat (projectile-project-root) ".gitignore")) :exit t)
-    ("T" (find-file (concat (projectile-project-root) ".ctagsignore")) :exit t)
-    ("m" (find-file (concat (projectile-project-root) "Makefile")) :exit t)
-    ("s" (find-file (concat (projectile-project-root) "setup.el")) :exit t)
+    ("c" (ab/save-and-jump (concat (projectile-project-root) "CHANGELOG.org")) :exit t)
+    ("R" (ab/save-and-jump (concat (projectile-project-root) "README.md")) :exit t)
+    ("r" (ab/save-and-jump (concat (projectile-project-root) "README.org")) :exit t)
+    ("i" (ab/save-and-jump (concat (projectile-project-root) ".gitignore")) :exit t)
+    ("T" (ab/save-and-jump (concat (projectile-project-root) ".ctagsignore")) :exit t)
+    ("m" (ab/save-and-jump (concat (projectile-project-root) "Makefile")) :exit t)
+    ("s" (ab/save-and-jump (concat (projectile-project-root) "setup.el")) :exit t)
     ("q" nil :exit t))
 
   (define-key evil-normal-state-map (kbd "H-p")
@@ -989,17 +996,17 @@ before packages are loaded."
     :doc
     "\n [_g_] Current org-file [_r_] Reading list [_d_] Distracted [_m_] mobile inbox [_n_] Notes folder [_S_] Shopping list\n [_w_] website notes [_s_] startpage [_p_] projects folder [_l_] ledger file [_o_] org folder [_q_] quit"
     :bindings
-    ("g" (find-file org-current-file) :exit t)
-    ("r" (find-file org-readme-file) :exit t)
-    ("d" (find-file org-distractions-file) :exit t)
-    ("m" (find-file org-mobile-file) :exit t)
-    ("n" (find-file "~/PKB/notes/proj-notes") :exit t)
-    ("w" (find-file "~/PKB/notes/website.org") :exit t)
-    ("S" (find-file "~/org/shopping.org") :exit t)
-    ("s" (find-file "~/projects/startpage/start.html") :exit t)
-    ("l" (find-file "~/finance/ledger.beancount") :exit t)
-    ("p" (find-file "~/projects/") :exit t)
-    ("o" (find-file "~/org/") :exit t)
+    ("g" (ab/save-and-jump org-current-file) :exit t)
+    ("r" (ab/save-and-jump org-readme-file) :exit t)
+    ("d" (ab/save-and-jump org-distractions-file) :exit t)
+    ("m" (ab/save-and-jump org-mobile-file) :exit t)
+    ("n" (ab/save-and-jump "~/PKB/notes/proj-notes") :exit t)
+    ("w" (ab/save-and-jump "~/PKB/notes/website.org") :exit t)
+    ("S" (ab/save-and-jump "~/org/shopping.org") :exit t)
+    ("s" (ab/save-and-jump "~/projects/startpage/start.html") :exit t)
+    ("l" (ab/save-and-jump "~/finance/ledger.beancount") :exit t)
+    ("p" (ab/save-and-jump "~/projects/") :exit t)
+    ("o" (ab/save-and-jump "~/org/") :exit t)
     ("q" nil :exit t))
 
   (global-set-key (kbd "H-g") 'spacemacs/ab|goto-file-transient-state/body)
@@ -1010,6 +1017,7 @@ before packages are loaded."
   (global-set-key (kbd "H-k") 'evil-window-up)
 
   (global-set-key (kbd "H-s") 'spacemacs/search-engine-select)
+  (global-set-key (kbd "H-b") 'pop-global-mark)
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; general user keybindings
   (spacemacs|define-transient-state ab|goto-config-file
@@ -1017,14 +1025,14 @@ before packages are loaded."
     :doc
     "\n [_e_] emacs [_z_] z-shell [_a_] aliases [_3_] i3wm [_m_] xmonad [_s_] statusbar [_c_] config folder \n [_j_] my emoJis [_q_] quit"
     :bindings
-    ("e" (find-file "~/.spacemacs.d/init.el") :exit t)
-    ("j" (find-file "~/.config/rofimoji/data/favorites.csv") :exit t)
-    ("z" (find-file "~/.zshrc") :exit t)
-    ("a" (find-file "~/.config/zsh_aliases") :exit t)
-    ("3" (find-file "~/.config/i3/config") :exit t)
-    ("m" (find-file "~/dotfiles/xmonad/.xmonad/xmonad.hs") :exit t)
-    ("s" (find-file "~/.config/i3status-rust/config.toml") :exit t)
-    ("c" (find-file "~/.config/") :exit t)
+    ("e" (ab/save-and-jump "~/.spacemacs.d/init.el") :exit t)
+    ("j" (ab/save-and-jump "~/.config/rofimoji/data/favorites.csv") :exit t)
+    ("z" (ab/save-and-jump "~/.zshrc") :exit t)
+    ("a" (ab/save-and-jump "~/.config/zsh_aliases") :exit t)
+    ("3" (ab/save-and-jump "~/.config/i3/config") :exit t)
+    ("m" (ab/save-and-jump "~/dotfiles/xmonad/.xmonad/xmonad.hs") :exit t)
+    ("s" (ab/save-and-jump "~/.config/i3status-rust/config.toml") :exit t)
+    ("c" (ab/save-and-jump "~/.config/") :exit t)
     ("q" nil :exit t))
 
   (spacemacs/set-leader-keys "fd" 'spacemacs/ab|goto-config-file-transient-state/body)
@@ -1064,10 +1072,12 @@ before packages are loaded."
   ;; agenda set up
   (setq org-agenda-files
         '("~/org"
-          "~/projects/br-sorting"
           "~/PKB/notes/website.org"
           "~/PKB/notes/res-pipeline.org"
-          "~/PKB/notes/proj-notes"
+          "~/PKB/notes/proj-notes/QuanTUK"
+          "~/PKB/notes/proj-notes/QuantumAktiv"
+          "~/PKB/notes/proj-notes/align-BDD"
+          "~/PKB/notes/proj-notes/qopt-overview"
           "~/.dotfiles"))
 
   (setq org-use-fast-todo-selection t)
@@ -1276,11 +1286,13 @@ This function is called at the very end of Spacemacs initialization."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(org-agenda-files
-   '("~/org/network.org" "/home/bochkare/org/current.org" "/home/bochkare/org/day_summary.org" "/home/bochkare/org/fun.org" "/home/bochkare/org/ideas.org" "/home/bochkare/org/js2021.org" "/home/bochkare/org/quotes.org" "/home/bochkare/org/readme.org" "/home/bochkare/org/shopping.org" "/home/bochkare/org/someday.org" "/home/bochkare/PKB/notes/website.org" "/home/bochkare/PKB/notes/res-pipeline.org" "/home/bochkare/.dotfiles/README.org" "/home/bochkare/.dotfiles/TODOs.org"))
+   '("~/PKB/notes/proj-notes/QuanTUK/project.org" "/home/bochkare/org/network.org" "/home/bochkare/org/current.org" "/home/bochkare/org/day_summary.org" "/home/bochkare/org/fun.org" "/home/bochkare/org/ideas.org" "/home/bochkare/org/js2021.org" "/home/bochkare/org/quotes.org" "/home/bochkare/org/readme.org" "/home/bochkare/org/shopping.org" "/home/bochkare/org/someday.org" "/home/bochkare/PKB/notes/website.org" "/home/bochkare/PKB/notes/res-pipeline.org" "/home/bochkare/.dotfiles/README.org" "/home/bochkare/.dotfiles/TODOs.org"))
  '(package-selected-packages
    '(yaml-mode toml-mode ron-mode racer rust-mode flycheck-rust cargo csv-mode company-reftex company-math math-symbol-lists company-auctex auctex-latexmk auctex graphviz-dot-mode yapfify stickyfunc-enhance sphinx-doc pytest pyenv-mode pydoc py-isort poetry transient pippel pipenv pyvenv pip-requirements nose lsp-python-ms lsp-pyright live-py-mode importmagic epc ctable concurrent deferred helm-pydoc helm-cscope xcscope cython-mode company-anaconda blacken anaconda-mode pythonic tern npm-mode nodejs-repl livid-mode skewer-mode js2-refactor multiple-cursors js2-mode js-doc import-js grizzl helm-gtags ggtags dap-mode lsp-treemacs bui lsp-mode markdown-mode counsel-gtags yasnippet web-mode web-beautify tagedit slim-mode scss-mode sass-mode pug-mode prettier-js impatient-mode simple-httpd helm-css-scss haml-mode emmet-mode counsel-css counsel swiper ivy company-web web-completion-data company add-node-modules-path ws-butler writeroom-mode winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package undo-tree treemacs-projectile treemacs-persp treemacs-icons-dired treemacs-evil toc-org symon symbol-overlay string-inflection string-edit spaceline-all-the-icons restart-emacs request rainbow-delimiters quickrun popwin pcre2el password-generator paradox ox-hugo ox-gfm overseer org-superstar org-rich-yank org-projectile org-present org-pomodoro org-msg org-mime org-download org-contrib org-cliplink open-junk-file nameless multi-line mu4e-maildirs-extension mu4e-alert macrostep lorem-ipsum link-hint keyfreq inspector info+ indent-guide hybrid-mode hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-xref helm-themes helm-swoop helm-purpose helm-projectile helm-org-rifle helm-org helm-mu helm-mode-manager helm-make helm-ls-git helm-flx helm-descbinds helm-ag google-translate golden-ratio gnuplot font-lock+ flyspell-correct-helm flycheck-pos-tip flycheck-package flycheck-elsa flx-ido fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-easymotion evil-collection evil-cleverparens evil-args evil-anzu eval-sexp-fu emr elisp-slime-nav editorconfig dumb-jump drag-stuff dotenv-mode dired-quick-sort diminish define-word column-enforce-mode clean-aindent-mode centered-cursor-mode auto-highlight-symbol auto-dictionary auto-compile aggressive-indent ace-link ace-jump-helm-line))
  '(safe-local-variable-values
-   '((eval add-hook 'after-save-hook 'org-html-export-to-html t t)
+   '((bibtex-completion-bibliography . qc-overview.bib)
+     (pkb-project-notes-dir . "QuanTUK")
+     (eval add-hook 'after-save-hook 'org-html-export-to-html t t)
      (pkb-project-notes-dir . "align-BDD")
      (javascript-backend . tide)
      (javascript-backend . tern)

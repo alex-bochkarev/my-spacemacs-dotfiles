@@ -1,6 +1,8 @@
 #+TITLE: Spacemacs config TODOs
 
 * Current project TODOs
+** TODO add =custom.el=
+Would make =init.el= cleaner I suppose
 ** TODO Maybe add beancount layer?
 [2022-10-19 Wed 10:40]
 
