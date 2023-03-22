@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: The Austrian greeting
+# key: gg
+# --
+Grüß Gott,
+
+$0
