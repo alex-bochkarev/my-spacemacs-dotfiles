@@ -1301,6 +1301,33 @@ location by calling `find-file' on `DEST')"
 
   (add-hook 'org-capture-after-finalize-hook 'my-org-capture-cleanup)
 
+  ;; --
+  ;; hyperbole setup
+  ;; --
+
+  (unless (and (featurep 'hyperbole) hyperbole-mode)
+    (when (< emacs-major-version 27)
+      (error "Hyperbole requires Emacs 27 or above; you are running version %d" emacs-major-version))
+    (push "~/opt/elisp/hyperbole-8.0.1pre0.20230312.162047/" load-path)
+    (require 'hyperbole)
+    (hyperbole-mode 1))
+
+
+  ;; defining custom hyperbole implicit buttons
+  ;; open bibtex entry at point
+  (defun ab/open-citation-entry (CITEKEY)
+    "Open citation notes (if existent)."
+    (interactive)
+    (org-mark-ring-push)
+    (let ((bibtex-completion-bibliography (org-ref-find-bibliography)))
+      (bibtex-completion-show-entry (list CITEKEY))))
+
+  (defil texcite "\\cite{" "}" "[A-Za-z_]+[0-9]+" 'ab/open-citation-entry)
+
+  (global-set-key (kbd "H-<return>") 'hkey-either)
+  ;; -- end of hyperbole configuration
+
+
   ;; keyfreq setup
   (setq keyfreq-file (concat spacemacs-cache-directory "emacs.keyfreq"))
   (keyfreq-mode 1)
