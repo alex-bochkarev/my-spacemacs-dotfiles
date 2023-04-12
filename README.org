@@ -28,3 +28,4 @@
 #+end_src
 
 - ripgrep (=sudo apt install ripgrep=)
+- latest Hyperbole from [[https://github.com/rswgnu/hyperbole][git]]

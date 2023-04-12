@@ -1348,6 +1348,8 @@ location by calling `find-file' on `DEST')"
 		(completing-read "pdf: " pdf-file))))))
 
   (defil texcite "\\cite{" "}" "[A-Za-z_]+[0-9]+" 'ab/open-citation-pdf)
+  (defil footnote "\[" "\]" "[0-9]+" #'(lambda (FNUM) (push-mark nil nil nil) (search-forward (concat "\[" FNUM "\]"))))
+
 
   (global-set-key (kbd "H-<return>") 'hkey-either)
   ;; -- end of hyperbole configuration
