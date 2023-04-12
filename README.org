@@ -1,7 +1,7 @@
-#+TITLE: Personal Spacemacs config (2022 revision)
+#+TITLE: Personal Spacemacs config
 #+AUTHOR: A. Bochkarev
 
-*Key things:*
+* Key things
 - customized orgmode, capture, and agenda
 - org-roam, org-roam-protocol
 - a simple project notes system on top of org-roam
@@ -16,3 +16,15 @@
 - beancount for finances / expenses tracking. (from [[https://github.com/beancount/beancount-mode][git]])
 - switched helm for ivy, added =deadgrep=
 - added a few functions for opening PDFs (with default app) and literature notes
+- added hyperbole, for nice in-line text actions everywhere and opening PDFs
+  from =\cite{}=-s
+
+* Dependencies
+- mu4e (from [[https://github.com/djcb/mu][source]]). Note, I use custom prefix dir, like this:
+#+begin_src bash
+  $ sudo apt install meson
+  $ meson -Dprefix=$HOME/.local/stow/mu-1.9 build && ninja -C build
+  $ ninja -C build install
+#+end_src
+
+- ripgrep (=sudo apt install ripgrep=)

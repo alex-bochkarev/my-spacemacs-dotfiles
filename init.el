@@ -575,6 +575,9 @@ This function is called immediately after `dotspacemacs/init', before layer
 configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
+
+  ;; This makes sure the `customize' data are saved
+  ;; in a separate file (not to mess `init.el').
   (setq custom-file "~/.spacemacs.d/custom.el")
   (load-file custom-file))
 
@@ -1048,6 +1051,7 @@ location by calling `find-file' on `DEST')"
   ;; <<< end of special places
 
   ;; orgmode ecosystem setup
+  (setq org-highlight-latex-and-related '(native))
 
   (setq org-list-allow-alphabetical t)
   (setq org-clock-out-remove-zero-time-clocks t)
@@ -1206,6 +1210,8 @@ location by calling `find-file' on `DEST')"
                  "* %?\n Link: %a\n Captured: %U\n")
                 ("R" "Daily result" entry (file+olp org-current-file "Daily inbox" "Results")
                  "* %? \n%a\n%U\n" :prepend t)
+                ("a" "A question TBD w/Anita" entry (file+headline org-current-file "TBD w/Anita")
+                 "* %?\n Captured: %U\n\n")
                 ("k" "Things to do with kids" entry (file+olp org-current-file "Kids" "Activity")
                  "* %? \n%a\n%U\n" :prepend t))))
 
@@ -1316,13 +1322,32 @@ location by calling `find-file' on `DEST')"
   ;; defining custom hyperbole implicit buttons
   ;; open bibtex entry at point
   (defun ab/open-citation-entry (CITEKEY)
-    "Open citation notes (if existent)."
+    "Open citation notes (if existent) for the citation key CITEKEY.
+(The code was heavily inspired by org-ref functions.)"
+
     (interactive)
     (org-mark-ring-push)
     (let ((bibtex-completion-bibliography (org-ref-find-bibliography)))
       (bibtex-completion-show-entry (list CITEKEY))))
 
-  (defil texcite "\\cite{" "}" "[A-Za-z_]+[0-9]+" 'ab/open-citation-entry)
+(defun ab/open-citation-pdf (CITEKEY)
+  "Open the pdf for bibtex key CITEKEY if it exists.
+(The code heavily borrowed from org-ref-open-pdf-at-point.)"
+  (interactive)
+  (let* ((bibtex-completion-bibliography (org-ref-find-bibliography))
+	 (results (org-ref-get-bibtex-key-and-file CITEKEY))
+         (key (car results))
+         (pdf-file (bibtex-completion-find-pdf key t)))
+    (pcase (length pdf-file)
+      (0
+       (message "no pdf found for %s" key))
+      (1
+       (funcall bibtex-completion-pdf-open-function (car pdf-file)))
+      (_
+       (funcall bibtex-completion-pdf-open-function
+		(completing-read "pdf: " pdf-file))))))
+
+  (defil texcite "\\cite{" "}" "[A-Za-z_]+[0-9]+" 'ab/open-citation-pdf)
 
   (global-set-key (kbd "H-<return>") 'hkey-either)
   ;; -- end of hyperbole configuration
