@@ -827,7 +827,7 @@ before packages are loaded."
                            "Postdoc @ RPTU Kaiserslautern-Landau :: AG Optimierung,\n"
                            "tel: +49 (0)631 205 3925\n"
                            "https://www.bochkarev.io\n"
-		                       "telegram: @abochka\n"))
+		                       "telegram: @abochka (https://t.me/abochka)"))
                         ;; set up maildir folders
                         (mu4e-sent-folder . "/RPTU/Sent")
 	                      (mu4e-drafts-folder . "/RPTU/Drafts")
@@ -838,7 +838,6 @@ before packages are loaded."
                         (smtpmail-queue-dir . "~/.mail/RPTU/queue/cur")
 	                      (message-send-mail-function . smtpmail-send-it)
 	                      (smtpmail-smtp-user . "a.bochkarev@rptu.de")
-	                      (smtpmail-starttls-credentials . (("smtp.uni-kl.de" 587 nil nil)))
 	                      (smtpmail-auth-credentials . (expand-file-name "~/.authinfo.gpg"))
 	                      (smtpmail-default-smtp-server . "smtp.uni-kl.de")
 	                      (smtpmail-smtp-server . "smtp.uni-kl.de")
@@ -1091,6 +1090,8 @@ location by calling `find-file' on `DEST')"
           "~/PKB/notes/proj-notes/QuantumAktiv"
           "~/PKB/notes/proj-notes/align-BDD"
           "~/PKB/notes/proj-notes/qopt-overview"
+          "~/PKB/notes/conferences.org"
+          "~/projects/qmath-course"
           "~/.dotfiles"))
 
   (setq org-use-fast-todo-selection t)
@@ -1347,8 +1348,18 @@ location by calling `find-file' on `DEST')"
        (funcall bibtex-completion-pdf-open-function
 		(completing-read "pdf: " pdf-file))))))
 
+(defun ab/run-texdoc (REQ)
+  "Runs `texdoc REQ` in the shell."
+  (message (concat "Got REQ=" REQ))
+  (call-process (executable-find "texdoc")
+                nil
+                (get-buffer-create "*texdoc-run*")
+                nil
+                REQ))
+
   (defil texcite "\\cite{" "}" "[A-Za-z_]+[0-9]+" 'ab/open-citation-pdf)
   (defil footnote "\[" "\]" "[0-9]+" #'(lambda (FNUM) (push-mark nil nil nil) (search-forward (concat "\[" FNUM "\]"))))
+  ;; (defil texdoc "texdoc{" "}" "[A-Za-z0-9]+" 'ab/run-texdoc)
 
 
   (global-set-key (kbd "H-<return>") 'hkey-either)

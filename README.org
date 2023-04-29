@@ -17,7 +17,7 @@
 - switched helm for ivy, added =deadgrep=
 - added a few functions for opening PDFs (with default app) and literature notes
 - added hyperbole, for nice in-line text actions everywhere and opening PDFs
-  from =\cite{}=-s
+  from =\cite{}=-s and =texdoc{package}= button.
 
 * Dependencies
 - mu4e (from [[https://github.com/djcb/mu][source]]). Note, I use custom prefix dir, like this:

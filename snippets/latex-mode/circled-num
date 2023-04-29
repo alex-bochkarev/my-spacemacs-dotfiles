@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: circled number
+# key: cir
+# --
+\Circled{$1}$0
