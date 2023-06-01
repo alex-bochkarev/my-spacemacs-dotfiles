@@ -269,7 +269,7 @@ It should only modify the values of Spacemacs settings."
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press `SPC T n' to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(doom-solarized-light doom-solarized-dark modus-operandi modus-vivendi)
+   dotspacemacs-themes '(professional modus-operandi modus-vivendi)
 
    ;; Set the theme for the Spaceline. Supported themes are `spacemacs',
    ;; `all-the-icons', `custom', `doom', `vim-powerline' and `vanilla'. The
@@ -279,7 +279,7 @@ It should only modify the values of Spacemacs settings."
    ;; spaceline theme. Value can be a symbol or list with additional properties.
    ;; (default '(spacemacs :separator wave :separator-scale 1.5))
    ;; default: dotspacemacs-mode-line-theme '(spacemacs :separator wave :separator-scale 1.5)
-   dotspacemacs-mode-line-theme 'doom
+   dotspacemacs-mode-line-theme 'vim-powerline
 
    ;; If non-nil the cursor color matches the state color in GUI Emacs.
    ;; (default t)
@@ -397,7 +397,7 @@ It should only modify the values of Spacemacs settings."
    ;; If non-nil the frame is undecorated when Emacs starts up. Combine this
    ;; variable with `dotspacemacs-maximized-at-startup' in OSX to obtain
    ;; borderless fullscreen. (default nil)
-   dotspacemacs-undecorated-at-startup t
+   dotspacemacs-undecorated-at-startup nil
 
    ;; A value from the range (0..100), in increasing opacity, which describes
    ;; the transparency level of a frame when it's active or selected.
@@ -919,6 +919,7 @@ before packages are loaded."
             (defun my-do-compose-stuff ()
               "My settings for message composition."
               (visual-line-mode)
+              (visual-fill-column-mode)
               (use-hard-newlines -1)
               (flyspell-mode)))
 
@@ -942,6 +943,34 @@ before packages are loaded."
 	      org-msg-default-alternatives '(text html))
 
   (setq my-email "a@bochkarev.io")
+
+  ;; plain-text markup related
+  (setq visual-line-fringe-indicators '(left-curly-arrow right-curly-arrow))
+
+  (defun ab/h2 ()
+    "Underlines the current line using '=' symbols to make a header."
+    (interactive)
+    (evil-next-line-1-first-non-blank)
+    (setq h-start (current-column))
+    (evil-end-of-line)
+    (setq h-end (current-column))
+    (evil-open-below 1)
+    (dotimes (i (+ (- h-end h-start) 1))
+             (insert "="))
+    (newline-and-indent)
+    (newline-and-indent))
+
+  (spacemacs|define-transient-state ab|editing-menu
+    :title "Plain text editing quick-actions."
+    :doc
+    "\n [_h_] Make a header [_b_] Insert a '▶ bullet' [_r_] right '→ arrow' [_q_] quit"
+    :bindings
+    ("h" (ab/h2) :exit t)
+    ("b" (insert "▶ ") :exit t)
+    ("r" (insert "→ ") :exit t)
+    ("q" nil :exit t))
+
+  (global-set-key (kbd "H-e") 'spacemacs/ab|editing-menu-transient-state/body)
 
   ;; set up attaching emails from within dired
   ;; (see the FAQ in the manual for details)
@@ -999,7 +1028,7 @@ location by calling `find-file' on `DEST')"
   (spacemacs|define-transient-state ab|goto-file
     :title "Special 'locations': Goto-menu."
     :doc
-    "\n [_g_] Current org-file [_r_] Reading list [_d_] Distracted [_m_] mobile inbox [_n_] Notes folder [_S_] Shopping list\n [_w_] website notes [_s_] startpage [_p_] projects folder [_l_] ledger file [_o_] org folder [_q_] quit"
+    "\n [_g_] Current org-file [_r_] Reading list [_d_] Distracted [_m_] mobile inbox [_n_] Notes folder [_S_] Shopping list\n [_w_] website notes [_s_] startpage [_p_] projects folder [_P_] projects list [_l_] ledger file [_o_] org folder [_q_] quit"
     :bindings
     ("g" (ab/save-and-jump org-current-file) :exit t)
     ("r" (ab/save-and-jump org-readme-file) :exit t)
@@ -1011,6 +1040,7 @@ location by calling `find-file' on `DEST')"
     ("s" (ab/save-and-jump "~/projects/startpage/start.html") :exit t)
     ("l" (ab/save-and-jump "~/finance/ledger.beancount") :exit t)
     ("p" (ab/save-and-jump "~/projects/") :exit t)
+    ("P" (ab/save-and-jump "~/PKB/notes/projects.org") :exit t)
     ("o" (ab/save-and-jump "~/org/") :exit t)
     ("q" nil :exit t))
 
@@ -1034,22 +1064,44 @@ location by calling `find-file' on `DEST')"
   (spacemacs|define-transient-state ab|goto-config-file
     :title "dotfiles menu"
     :doc
-    "\n [_e_] emacs [_z_] z-shell [_a_] aliases [_3_] i3wm [_m_] xmonad [_s_] statusbar [_c_] config folder \n [_j_] my emoJis [_q_] quit"
+    "\n [_e_] emacs [_z_] z-shell [_a_] aliases [_w_] WM (Sway) [_m_] xmonad [_s_] statusbar \n [_c_] config folder [_d_] dotfiles folder [_j_] my emoJis [_q_] quit"
     :bindings
     ("e" (ab/save-and-jump "~/.spacemacs.d/init.el") :exit t)
     ("j" (ab/save-and-jump "~/.config/rofimoji/data/favorites.csv") :exit t)
     ("z" (ab/save-and-jump "~/.zshrc") :exit t)
     ("a" (ab/save-and-jump "~/.config/zsh_aliases") :exit t)
-    ("3" (ab/save-and-jump "~/.config/i3/config") :exit t)
+    ("w" (ab/save-and-jump "~/.config/sway/config") :exit t)
     ("m" (ab/save-and-jump "~/dotfiles/xmonad/.xmonad/xmonad.hs") :exit t)
-    ("s" (ab/save-and-jump "~/.config/i3status-rust/config.toml") :exit t)
+    ("s" (ab/save-and-jump "~/.config/waybar/") :exit t)
     ("c" (ab/save-and-jump "~/.config/") :exit t)
+    ("d" (ab/save-and-jump "~/.dotfiles/") :exit t)
     ("q" nil :exit t))
 
   (spacemacs/set-leader-keys "fd" 'spacemacs/ab|goto-config-file-transient-state/body)
   ;; <<< end of special places
 
   ;; orgmode ecosystem setup
+  ;; a few magic hints for org-columns view
+  (spacemacs/set-leader-keys-for-major-mode 'org-mode "<SPC>" 'org-columns)
+
+  (defun ab/line-up ()
+    "Moves a line up while columns-view is on"
+    (interactive)
+    (org-columns-quit)
+    (org-metaup)
+    (org-columns))
+
+  (defun ab/line-down ()
+    "Moves a line up while columns-view is on"
+    (interactive)
+    (org-columns-quit)
+    (org-metadown)
+    (org-columns))
+
+  (global-set-key (kbd "C-H-k") 'ab/line-up)
+  (global-set-key (kbd "C-H-j") 'ab/line-down)
+  ;; end of org-columns stuff
+
   (setq org-highlight-latex-and-related '(native))
 
   (setq org-list-allow-alphabetical t)
@@ -1091,6 +1143,7 @@ location by calling `find-file' on `DEST')"
           "~/PKB/notes/proj-notes/align-BDD"
           "~/PKB/notes/proj-notes/qopt-overview"
           "~/PKB/notes/conferences.org"
+          "~/PKB/notes/projects.org"
           "~/projects/qmath-course"
           "~/.dotfiles"))
 
@@ -1359,7 +1412,7 @@ location by calling `find-file' on `DEST')"
 
   (defil texcite "\\cite{" "}" "[A-Za-z_]+[0-9]+" 'ab/open-citation-pdf)
   (defil footnote "\[" "\]" "[0-9]+" #'(lambda (FNUM) (push-mark nil nil nil) (search-forward (concat "\[" FNUM "\]"))))
-  ;; (defil texdoc "texdoc{" "}" "[A-Za-z0-9]+" 'ab/run-texdoc)
+  (defil texdoc "texdoc{" "}" "[A-Za-z0-9]+" 'ab/run-texdoc)
 
 
   (global-set-key (kbd "H-<return>") 'hkey-either)

@@ -1,0 +1,4 @@
+# key: vec2
+# name: vector-in-2D
+# --
+\begin{bmatrix} $1 \\\\ $2 \end{bmatrix}$0

@@ -26,6 +26,6 @@
   $ meson -Dprefix=$HOME/.local/stow/mu-1.9 build && ninja -C build
   $ ninja -C build install
 #+end_src
-
+- ctags (=sudo apt install universal-ctags=)
 - ripgrep (=sudo apt install ripgrep=)
 - latest Hyperbole from [[https://github.com/rswgnu/hyperbole][git]]
