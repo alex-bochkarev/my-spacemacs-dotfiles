@@ -28,11 +28,11 @@ This function should only modify configuration layer settings."
 
    ;; List of additional paths where to look for configuration layers.
    ;; Paths must have a trailing slash (i.e. `~/.mycontribs/')
-   dotspacemacs-configuration-layer-path '()
+   dotspacemacs-configuration-layer-path '("~/.spacemacs.d/layers/")
 
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(
+   '(systemd
      ;; org-related setup
      (org :variables
           org-enable-github-support t
@@ -49,9 +49,15 @@ This function should only modify configuration layer settings."
      julia
      csv
      graphviz
-     (python :variables python-test-runner 'pytest)
-     ipython-notebook
-     restructuredtext git javascript
+     lsp
+     (python :variables
+             python-backend 'pyright
+             python-test-runner 'pytest
+             python-pipenv-activate t
+             python-shell-completion-native-enable nil)
+     restructuredtext
+     (git :variables git-enable-magit-todos-plugin t)
+     javascript
      html
      search-engine
      ;; ----------------------------------------------------------------
@@ -74,6 +80,7 @@ This function should only modify configuration layer settings."
      helpful
 
      ranger
+     vinegar
 
      bibtex
 
@@ -82,9 +89,10 @@ This function should only modify configuration layer settings."
            mu4e-installation-path "~/.local/share/emacs/site-lisp/mu4e")
 
      ess
+
+     table-manipulation
      ;; latex setup
      latex
-     lsp
 
      ;; literature notes
      deft
@@ -269,7 +277,7 @@ It should only modify the values of Spacemacs settings."
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press `SPC T n' to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(professional modus-operandi modus-vivendi)
+   dotspacemacs-themes '(moe-light moe-dark professional modus-operandi modus-vivendi)
 
    ;; Set the theme for the Spaceline. Supported themes are `spacemacs',
    ;; `all-the-icons', `custom', `doom', `vim-powerline' and `vanilla'. The
@@ -279,7 +287,7 @@ It should only modify the values of Spacemacs settings."
    ;; spaceline theme. Value can be a symbol or list with additional properties.
    ;; (default '(spacemacs :separator wave :separator-scale 1.5))
    ;; default: dotspacemacs-mode-line-theme '(spacemacs :separator wave :separator-scale 1.5)
-   dotspacemacs-mode-line-theme 'vim-powerline
+   dotspacemacs-mode-line-theme 'spacemacs
 
    ;; If non-nil the cursor color matches the state color in GUI Emacs.
    ;; (default t)
@@ -616,8 +624,16 @@ before packages are loaded."
        `(fill-column-indicator ((,class :height 2.0 :background ,bg-inactive :foreground ,bg-inactive))))))
   (add-hook 'modus-themes-after-load-theme-hook #'my-modus-themes-custom-faces)
 
+  (show-paren-mode t)
+  (setq show-paren-style 'expression)
   (setq org-ellipsis "↴") ;; might want to consider: ▼, ⤵, ↴, ⬎, ⤷, ⋱
   ;; end of theme config
+
+  (defun ab/highlight-names ()
+    "Highlights @mentions in the current buffer."
+    (interactive)
+    (font-lock-add-keywords nil '(("@[A-Za-z]+[:]*" . font-lock-warning-face)))
+    (font-lock-fontify-buffer))
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; bibtex config
@@ -754,6 +770,7 @@ before packages are loaded."
 		                      (concat
 		                       "Alexey Bochkarev\n"
                            "https://www.bochkarev.io\n"
+                           "matrix: @bochkarev:matrix.org\n"
 		                       "telegram: @abochka\n"))
                         ;; set up maildir folders
                         (mu4e-sent-folder . "/personal/Sent")
@@ -790,6 +807,7 @@ before packages are loaded."
 		                      (concat
 		                       "Alexey Bochkarev\n"
                            "https://www.bochkarev.io\n"
+                           "matrix: @bochkarev:matrix.org\n"
 		                       "telegram: @abochka\n"))
                         ;; set up maildir folders
                         (mu4e-sent-folder . "/CU/Sent")
@@ -827,6 +845,7 @@ before packages are loaded."
                            "Postdoc @ RPTU Kaiserslautern-Landau :: AG Optimierung,\n"
                            "tel: +49 (0)631 205 3925\n"
                            "https://www.bochkarev.io\n"
+                           "matrix: @bochkarev:matrix.org\n"
 		                       "telegram: @abochka (https://t.me/abochka)"))
                         ;; set up maildir folders
                         (mu4e-sent-folder . "/RPTU/Sent")
@@ -861,6 +880,7 @@ before packages are loaded."
 		                      (concat
 		                       "Alexey Bochkarev\n"
                            "https://www.bochkarev.io\n"
+                           "matrix: @bochkarev:matrix.org\n"
 		                       "telegram: @abochka\n"))
                         ;; set up maildir folders
                         (mu4e-sent-folder . "/legacy/Sent")
@@ -918,8 +938,11 @@ before packages are loaded."
   (add-hook 'mu4e-compose-mode-hook
             (defun my-do-compose-stuff ()
               "My settings for message composition."
+              (spacemacs/toggle-auto-fill-mode-off)
               (visual-line-mode)
               (visual-fill-column-mode)
+              (spacemacs/toggle-fill-column-indicator-on)
+              (spacemacs/toggle-visual-line-navigation-on)
               (use-hard-newlines -1)
               (flyspell-mode)))
 
@@ -963,11 +986,12 @@ before packages are loaded."
   (spacemacs|define-transient-state ab|editing-menu
     :title "Plain text editing quick-actions."
     :doc
-    "\n [_h_] Make a header [_b_] Insert a '▶ bullet' [_r_] right '→ arrow' [_q_] quit"
+    "\n [_h_] Make a header [_b_] Insert a '▶ bullet' [_r_] right '→ arrow' [_*_] Asterism [_q_] quit"
     :bindings
     ("h" (ab/h2) :exit t)
     ("b" (insert "▶ ") :exit t)
     ("r" (insert "→ ") :exit t)
+    ("*" (insert "⁂\n") :exit t)
     ("q" nil :exit t))
 
   (global-set-key (kbd "H-e") 'spacemacs/ab|editing-menu-transient-state/body)
@@ -1027,22 +1051,23 @@ location by calling `find-file' on `DEST')"
 
   (spacemacs|define-transient-state ab|goto-file
     :title "Special 'locations': Goto-menu."
-    :doc
-    "\n [_g_] Current org-file [_r_] Reading list [_d_] Distracted [_m_] mobile inbox [_n_] Notes folder [_S_] Shopping list\n [_w_] website notes [_s_] startpage [_p_] projects folder [_P_] projects list [_l_] ledger file [_o_] org folder [_q_] quit"
+    :hint t
     :bindings
-    ("g" (ab/save-and-jump org-current-file) :exit t)
-    ("r" (ab/save-and-jump org-readme-file) :exit t)
-    ("d" (ab/save-and-jump org-distractions-file) :exit t)
-    ("m" (ab/save-and-jump org-mobile-file) :exit t)
-    ("n" (ab/save-and-jump "~/PKB/notes/proj-notes") :exit t)
-    ("w" (ab/save-and-jump "~/PKB/notes/website.org") :exit t)
-    ("S" (ab/save-and-jump "~/org/shopping.org") :exit t)
-    ("s" (ab/save-and-jump "~/projects/startpage/start.html") :exit t)
-    ("l" (ab/save-and-jump "~/finance/ledger.beancount") :exit t)
-    ("p" (ab/save-and-jump "~/projects/") :exit t)
-    ("P" (ab/save-and-jump "~/PKB/notes/projects.org") :exit t)
-    ("o" (ab/save-and-jump "~/org/") :exit t)
-    ("q" nil :exit t))
+    ("g" (ab/save-and-jump org-current-file) "gen org" :exit t)
+    ("r" (ab/save-and-jump org-readme-file) "reading list" :exit t)
+    ("d" (ab/save-and-jump org-distractions-file) "distractions" :exit t)
+    ("m" (ab/save-and-jump org-mobile-file) "mobile inbox" :exit t)
+    ("w" (ab/save-and-jump "~/PKB/notes/website.org") "website notes":exit t)
+    ("S" (ab/save-and-jump "~/org/shopping.org") "shopping list":exit t)
+    ("j" (ab/save-and-jump "~/org/network.org") "network and career" :exit t)
+    ("s" (ab/save-and-jump "~/projects/startpage/start.html") "startpage.html" :exit t)
+    ("l" (ab/save-and-jump "~/finance/ledger.beancount") "ledger" :exit t)
+    ("e" (ab/save-and-jump org-email-file) "email backlog" :exit t)
+    ("p" (ab/save-and-jump org-research-file) "projects pipeline" :exit t)
+    ("fp" (ab/save-and-jump "~/projects/") "projects folder" :exit t)
+    ("fn" (ab/save-and-jump "~/PKB/notes/proj-notes") "project notes":exit t)
+    ("fo" (ab/save-and-jump "~/org/") "org folder" :exit t)
+    ("q" nil "quit" :exit t))
 
   (global-set-key (kbd "H-g") 'spacemacs/ab|goto-file-transient-state/body)
 
@@ -1051,6 +1076,7 @@ location by calling `find-file' on `DEST')"
   (global-set-key (kbd "H-j") 'evil-window-down)
   (global-set-key (kbd "H-k") 'evil-window-up)
 
+  (global-set-key (kbd "H-w") (lambda () (interactive) (spacemacs/kill-this-buffer 1)))
   ;; here goes healthy amount of redundancy...
   (global-set-key (kbd "s-h") 'evil-window-left)
   (global-set-key (kbd "s-l") 'evil-window-right)
@@ -1059,19 +1085,29 @@ location by calling `find-file' on `DEST')"
 
   (global-set-key (kbd "H-s") 'spacemacs/search-engine-select)
   (global-set-key (kbd "H-b") 'pop-global-mark)
+
+  (global-set-key (kbd "H-v") (lambda () (interactive)
+                                (if (bound-and-true-p ab/default-file-to-view)
+                                         (if (file-exists-p ab/default-file-to-view)
+                                             (spacemacs//open-in-external-app (expand-file-name ab/default-file-to-view))
+                                           (message (concat ab/default-file-to-view ": file does not exist")))
+                                  (message "ab/default-file-to-view not defined (bind it in .dir-locals!)"))))
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; general user keybindings
+  (spacemacs/set-leader-keys "on" 'ab/highlight-names)
+  (which-key-add-keymap-based-replacements spacemacs-default-map "on" "highlight @names")
+
   (spacemacs|define-transient-state ab|goto-config-file
     :title "dotfiles menu"
     :doc
-    "\n [_e_] emacs [_z_] z-shell [_a_] aliases [_w_] WM (Sway) [_m_] xmonad [_s_] statusbar \n [_c_] config folder [_d_] dotfiles folder [_j_] my emoJis [_q_] quit"
+    "\n [_e_] emacs [_z_] z-shell [_a_] aliases [_w_] WM (Sway) [_m_] .mailrc [_s_] statusbar \n [_c_] config folder [_d_] dotfiles folder [_j_] my emoJis [_q_] quit"
     :bindings
     ("e" (ab/save-and-jump "~/.spacemacs.d/init.el") :exit t)
     ("j" (ab/save-and-jump "~/.config/rofimoji/data/favorites.csv") :exit t)
     ("z" (ab/save-and-jump "~/.zshrc") :exit t)
     ("a" (ab/save-and-jump "~/.config/zsh_aliases") :exit t)
     ("w" (ab/save-and-jump "~/.config/sway/config") :exit t)
-    ("m" (ab/save-and-jump "~/dotfiles/xmonad/.xmonad/xmonad.hs") :exit t)
+    ("m" (ab/save-and-jump "~/.mailrc") :exit t)
     ("s" (ab/save-and-jump "~/.config/waybar/") :exit t)
     ("c" (ab/save-and-jump "~/.config/") :exit t)
     ("d" (ab/save-and-jump "~/.dotfiles/") :exit t)
@@ -1081,6 +1117,8 @@ location by calling `find-file' on `DEST')"
   ;; <<< end of special places
 
   ;; orgmode ecosystem setup
+  (setq org-src-tab-acts-natively nil)
+
   ;; a few magic hints for org-columns view
   (spacemacs/set-leader-keys-for-major-mode 'org-mode "<SPC>" 'org-columns)
 
@@ -1109,6 +1147,8 @@ location by calling `find-file' on `DEST')"
   ;; key files for the ecosystem
 
   (setq org-readme-file "~/org/readme.org")
+  (setq org-research-file "~/PKB/notes/projects.org")
+  (setq org-email-file "~/org/email.org")
   (setq org-quotes-file "~/org/quotes.org")
   (setq org-distractions-file "~/org/fun.org")
   (setq org-current-file "~/org/current.org")
@@ -1117,6 +1157,23 @@ location by calling `find-file' on `DEST')"
   (setq org-daily-summary-file "~/org/summaries.org.gpg")
   (setq org-mobile-file "~/Dropbox/orgzly/mobile-refile.org")
 
+  ;; latex customizations
+  (defun ab/latex-quote-selection (beg end)
+    "Wraps the region (selection) in ` and '."
+    (interactive (if (use-region-p)
+                     (list (region-beginning) (region-end))
+                   (list nil nil)))
+    (save-excursion
+      (let ((repeats (if (eq (prefix-numeric-value current-prefix-arg) 4) 1 2)))
+           (if (and beg end)
+               (progn
+                 (goto-char beg)
+                 (insert (make-string repeats ?`))
+                 (goto-char (+ end repeats))
+                 (insert (make-string repeats ?')))
+             (insert (concat (make-string repeats ?`) (make-string repeats ?')))))))
+
+  (global-set-key (kbd "H-'") 'ab/latex-quote-selection)
   ;; project-management related filenames
   (setq pkb-project-note-file "project.org")
   (setq pkb-project-log-file "log.org")
@@ -1204,74 +1261,75 @@ location by calling `find-file' on `DEST')"
   (global-set-key (kbd "H-a") 'org-agenda)
   ;; ============================== End of the custom agenda setup ==============================================
 
-  ;; capture setup >>
-  (global-set-key (kbd "H-c") 'org-capture)
-
+  ;; clocking in-out fine-tuning
   (global-set-key (kbd "H-i") 'org-clock-in)
   (global-set-key (kbd "H-o") 'org-clock-out)
-
 
   ;; for resolving idle time - ask me if I seem to be out
   (setq org-clock-idle-time 15)
   (setq spaceline-org-clock-p t)
 
-  ;; org-protocol related config
+;;; org-protocol related config
   (use-package org-protocol
     :after org)
 
-  ;; capture templates
-  (setq org-capture-templates
-        (quote (
-                ("r" "=== Repo-specific templates === ")
-                ("rt" "New TODO (repo-specific)" entry (file+headline (lambda () (concat (projectile-project-root)  org-projectile-per-project-filepath)) "Current project TODOs")
-                 "* TODO %?\n%U\n%a\n" :prepend t)
-                ("rc" "Changelog entry (repo-specific)" entry(file+headline (lambda () (concat (projectile-project-root) "CHANGELOG.org")) "Running changelog")
-                 "* %U: %? \n%a\n" :prepend t)
-                ("rn" "General note / assumptions / etc (repo-specific)" entry (file+headline (lambda () (concat (projectile-project-root)  org-projectile-per-project-filepath)) "Notes")
-                 "* %?\n%U\n%a\n" :prepend t)
-                ("rf" "Further note / TODOs" entry (file+headline (lambda () (concat (projectile-project-root)  org-projectile-per-project-filepath)) "Further")
-                 "* %?\n%U\n%a\n" :prepend t)
 
-                ("p" "=== Project-specific templates (PKB/notes) === ")
-                ("pt" "New TODO (project-specific)" entry (file+headline (lambda () (concat pkb-project-notes-dir (projectile-project-name) "/" pkb-project-note-file)) "Current project TODOs")
-                 "* TODO %?\n%U\n%a\n" :prepend t)
-                 ("pl" "Project Log entry" entry(file+headline (lambda () (concat  pkb-project-notes-dir (projectile-project-name) "/" pkb-project-log-file)) "Running results")
-                 "* %U: %? \n%a\n" :prepend t)
-                 ("pN" "Notation note (project-specific)" item (file+headline (lambda () (concat  pkb-project-notes-dir (projectile-project-name) "/" pkb-project-notation-file)) "Table of symbols (notation)")
-                  "- %?\n")
-                 ("pn" "General note / assumptions / etc (project-specific)" entry (file+headline (lambda () (concat pkb-project-notes-dir (projectile-project-name) "/" pkb-project-note-file)) "Notes")
-                 "* %?\n%U\n%a\n" :prepend t)
-                 ("pf" "Further research note (project-specific)" entry (file+headline (lambda () (concat pkb-project-notes-dir (projectile-project-name) "/" pkb-project-note-file)) "Further research and TODOs")
-                  "* %?\n%U\n%a\n" :prepend t)
+  (load-file "~/.spacemacs.d/ab-capture.el")
 
-                ("t" "Current TODO (current.org)" entry (file+headline org-current-file "Daily inbox")
-                 "* TODO %? \n%a\n" :prepend t)
-                ("s" "=== Someday TODOs (someday.org) ============== ")
-                ("sw" "Weekend TODO" entry (file+headline org-someday-file "Weekend")
-                 "* TODO %? \n" :prepend t)
-                ("ss" "Someday TODO" entry (file+headline org-someday-file "Someday")
-                 "* TODO %? \n" :prepend t)
-                ("n" "Current/fleeting note (current.org)" entry (file+headline org-current-file "Daily inbox")
-                 "* %? \n%a\n" :prepend t)
-                ("b" "========== [b] Bookmarks / readme notes====================")
-                ("br" "Research-related entry" entry (file+headline org-readme-file "Research-related notes")
-                 "* %a \n Captured: %U\n %?\n")
-                ("bg" "General note (link)" entry (file+headline org-readme-file "General notes")
-                 "* %a\n Captured: %U\n %?\n\n")
-                ("w" "Web note idea (blog)" entry (file+headline org-blog-file "Ideas for notes")
-                 "* %?\n%U\n")
-                ("d" "A distraction!" entry (file org-distractions-file)
-                 "* %?\n Link: %a\n Captured: %U\n")
-                ("R" "Daily result" entry (file+olp org-current-file "Daily inbox" "Results")
-                 "* %? \n%a\n%U\n" :prepend t)
-                ("a" "A question TBD w/Anita" entry (file+headline org-current-file "TBD w/Anita")
-                 "* %?\n Captured: %U\n\n")
-                ("k" "Things to do with kids" entry (file+olp org-current-file "Kids" "Activity")
-                 "* %? \n%a\n%U\n" :prepend t))))
+  ;; bury the compilation buffer if everything is OK
+  ;; see https://stackoverflow.com/questions/11043004/emacs-compile-buffer-auto-close
 
-  ;; refiling config
-  (setq org-refile-targets '((org-agenda-files :maxlevel . 3)))
-  ;; << end of capture setup
+  ;; compilation: hiding window on OK
+  (defvar my-compilation-exit-code nil)
+  (defun my-compilation-exit-message-function (status_ code message)
+    (setq my-compilation-exit-code code)
+    (cons message code))
+
+  (setq compilation-exit-message-function 'my-compilation-exit-message-function)
+
+  (add-hook 'compilation-start-hook 'compilation-started)
+  (add-hook 'compilation-finish-functions 'hide-compile-buffer-if-successful)
+
+  (defcustom auto-hide-compile-buffer-delay 0
+    "Time in seconds before auto hiding compile buffer."
+    :group 'compilation
+    :type 'number
+    )
+
+  (defun hide-compile-buffer-if-successful (buffer string)
+    (setq compilation-total-time (time-subtract nil compilation-start-time))
+    (setq time-str (concat " (Time: " (format-time-string "%s.%3N" compilation-total-time) "s)"))
+
+    (if
+        (with-current-buffer buffer
+          (setq warnings (eval compilation-num-warnings-found))
+          (setq warnings-str (concat " (Warnings: " (number-to-string warnings) ")"))
+          (setq errors (eval compilation-num-errors-found))
+
+          (if (and
+               (eq errors 0)
+               (eq my-compilation-exit-code 0)) nil t))
+
+        ;;If Errors then
+        (message (concat "Compiled with Errors" warnings-str time-str))
+
+      ;;If Compiled Successfully or with Warnings then
+      (progn
+        (bury-buffer buffer)
+        (run-with-timer auto-hide-compile-buffer-delay nil 'delete-window (get-buffer-window buffer 'visible))
+        (message (concat "Compiled Successfully" warnings-str time-str))
+        )
+      )
+    )
+
+  (make-variable-buffer-local 'compilation-start-time)
+
+  (defun compilation-started (proc) 
+    (setq compilation-start-time (current-time))
+    )
+  ;; python-specific customizations
+  (with-eval-after-load 'python
+    (evil-define-key '(normal insert) python-mode-map (kbd "C-<return>") 'spacemacs/python-shell-send-line))
 
   ;; julia-specific customizations >>>
   (defun ab|julia-close-this ()
@@ -1419,6 +1477,8 @@ location by calling `find-file' on `DEST')"
   ;; -- end of hyperbole configuration
 
 
+  (require 'git-commit)
+  (global-git-commit-mode t)
   ;; keyfreq setup
   (setq keyfreq-file (concat spacemacs-cache-directory "emacs.keyfreq"))
   (keyfreq-mode 1)
